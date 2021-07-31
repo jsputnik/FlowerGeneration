@@ -64,7 +64,7 @@ class ImageManager:
         # print("Start y: ", start_y)
         result[start_y:start_y + height, start_x:start_x + width] = img
         # cv2.imshow("Img resized", result)
-        cv2.waitKey(0)
+        # cv2.waitKey(0)
         return result
 
     def set_image_dimensions(self):

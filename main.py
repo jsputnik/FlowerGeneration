@@ -8,6 +8,10 @@ from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 
 from utils.ImageManager import ImageManager
+from nn.FlowerDataset import FlowerDataset
+from nn.transforms import Resize
+# import torch.utils.data
+# from torch.utils.data import random_split
 
 
 def show_img(img, label, ds):
@@ -142,29 +146,19 @@ def split_into_sets(data, seed, images_per_class):
     print("hey")
 
 
+# manager = ImageManager("../datasets/17flowers/jpg", "../datasets/trimaps", "../datasets/trimaps/imlist.mat")
+# manager.load()
+# manager.set_image_dimensions()
+# print("Statistics: ", manager.get_statistics())
+# print(f"Wide and tall: {manager.get_wide_and_tall()}")
+# print(f"Flower trimaps count for each class: {manager.count_flower_types()}")
+#
+# # manager.display(manager.data["image_0390.jpg"])
+# manager.resize_all()
+# # manager.resize(manager.data["image_0001.jpg"])
+# cv2.destroyAllWindows()
+
 print("Start")
-# image1 = cv2.imread("../datasets/17flowers/jpg/image_0003.jpg")
-# # print(type(image1[0][0][0]))
-# print(image1)
-# # print(f"Image1 type: {type(image1)}")
-# cv2.imshow("Image1", image1)
-# cv2.waitKey(0)
-# resized = cv2.resize(image1, (400, 400), )
-# cv2.imshow("Image1 resized", resized)
-# cv2.waitKey(0)
-
-manager = ImageManager("../datasets/17flowers/jpg", "../datasets/trimaps", "../datasets/trimaps/imlist.mat")
-manager.load()
-manager.set_image_dimensions()
-print("Statistics: ", manager.get_statistics())
-print(f"Wide and tall: {manager.get_wide_and_tall()}")
-print(f"Flower trimaps count for each class: {manager.count_flower_types()}")
-
-# manager.display(manager.data["image_0390.jpg"])
-manager.resize_all()
-# manager.resize(manager.data["image_0001.jpg"])
-cv2.destroyAllWindows()
-
 
 # hyperparameters
 seed = 42
@@ -175,6 +169,24 @@ num_epochs = 30
 learning_rate = 0.05
 model_path = "./models/"
 images_per_class = 80
+
+manager = ImageManager("../datasets/17flowers/jpg", "../datasets/trimaps", "../datasets/trimaps/imlist.mat")
+manager.load()
+manager.set_image_dimensions()
+print(manager.default_width)
+print(manager.default_height)
+dataset = FlowerDataset("../datasets/17flowers/jpg/", "../datasets/trimaps/", Resize((manager.default_width, manager.default_height)))
+manager.display(dataset[0])
+cv2.waitKey(0)
+
+test_dataset_size = int(set_ratio * len(dataset))
+train_dataset_size = len(dataset) - test_dataset_size
+torch.manual_seed(seed)  # to ensure creating same sets
+test_dataset, train_dataset = torch.utils.data.random_split(dataset, [test_dataset_size, train_dataset_size])
+print(f"Dataset size: {len(dataset)}")
+print(f"Test_dataset size: {len(test_dataset)}")
+print(f"Train_dataset size: {len(train_dataset)}")
+# show_img(*train_set[0], dataset)
 
 # data_dir = "../datasets/17flowers/jpg"
 # # split data_dir into 3 sets: train, validate, test
@@ -203,11 +215,6 @@ images_per_class = 80
 # # difference in size, because some classes of flowers aren't considered
 # print(f"Trimaps length: {len(tris)}")
 # print(f"Trimaps actual length: {len(dataset)}")
-
-# ds = FlowerDataset("mydataset")
-# print(ds.name)
-# ds.print()
-# dataset = ImageFolder(data_dir, transform = ToTensor())
 
 '''
 test_set = ImageFolder(data_dir + '/test', transform=ToTensor())
