@@ -16,12 +16,12 @@ class Resize:
             width = int(self.default_height // ratio)
             image = cv2.resize(image, (width, height))
         result = np.zeros((self.default_height, self.default_width, 3), np.uint8)
-        cv2.imshow("Image", image)
+        # cv2.imshow("Image", image)
         start_x = (self.default_width - width) // 2
         start_y = (self.default_height - height) // 2
         result[start_y:start_y + height, start_x:start_x + width] = image
-        cv2.imshow("Img resized", result)
-        cv2.waitKey(0)
+        # cv2.imshow("Img resized", result)
+        # cv2.waitKey(0)
         return result
 
         # image, landmarks = sample['image'], sample['landmarks']

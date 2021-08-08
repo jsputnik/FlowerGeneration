@@ -1,12 +1,13 @@
 import torch
-import cv2
 
 import torch.nn as nn
+from torch.utils.data import DataLoader
 
 from torchvision.utils import make_grid
 
 import matplotlib.pyplot as plt
 
+from nn.FlowerNet import FlowerNet
 from utils.ImageManager import ImageManager
 from nn.FlowerDataset import FlowerDataset
 from nn.transforms import Resize
@@ -29,62 +30,8 @@ def show_batch(dl):
         plt.imshow(make_grid(images, nrow=10).permute(1, 2, 0))
         plt.show()
         break
+    print("ahaah")
 
-
-# class SkyNet(nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.network = nn.Sequential(
-#             #nn.Conv2d(3, 32, kernel_size=3, padding=1),
-#             #nn.ReLU(),
-#             #nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-#             #nn.ReLU(),
-#             #nn.MaxPool2d(2, 2), # output: 64 x 16 x 16
-#
-#             #nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-#             #nn.ReLU(),
-#             #nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
-#             #nn.ReLU(),
-#             #nn.MaxPool2d(2, 2), # output: 128 x 8 x 8
-#
-#             #nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
-#             #nn.ReLU(),
-#             #nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1),
-#             #nn.ReLU(),
-#             #nn.MaxPool2d(2, 2), # output: 256 x 4 x 4
-#
-#             #nn.Flatten(),
-#             #nn.Linear(256*4*4, 1024),
-#             #nn.ReLU(),
-#             #nn.Linear(1024, 512),
-#             #nn.ReLU(),
-#             #nn.Linear(512, 10)
-#             nn.Conv2d(3, 16, 3, padding = 1),
-#             nn.ReLU(),
-#             nn.MaxPool2d(2, 2),
-#
-#             nn.Conv2d(16, 16, 3, padding = 1),
-#             nn.ReLU(),
-#             nn.MaxPool2d(2, 2),
-#
-#             nn.Conv2d(16, 16, 3, padding = 1),
-#             nn.ReLU(),
-#             nn.MaxPool2d(2, 2),
-#
-#             nn.Conv2d(16, 16, 3, padding = 1),
-#             nn.ReLU(),
-#             nn.MaxPool2d(2, 2),
-#
-#             nn.Conv2d(16, 16, 3, padding = 1),
-#             nn.ReLU(),
-#             nn.MaxPool2d(2, 2),
-#
-#             nn.Flatten(),
-#             nn.Linear(16, 10)
-#             )
-#
-#     def forward(self, xb):
-#         return self.network(xb)
 
 def evaluate(model, val_dl, loss_fun=nn.CrossEntropyLoss()):
     model.eval()  # turn off regularisation
@@ -145,24 +92,14 @@ def predict(model, image, classes):
 def split_into_sets(data, seed, images_per_class):
     print("hey")
 
-
-# manager = ImageManager("../datasets/17flowers/jpg", "../datasets/trimaps", "../datasets/trimaps/imlist.mat")
-# manager.load()
-# manager.set_image_dimensions()
-# print("Statistics: ", manager.get_statistics())
-# print(f"Wide and tall: {manager.get_wide_and_tall()}")
-# print(f"Flower trimaps count for each class: {manager.count_flower_types()}")
-#
-# # manager.display(manager.data["image_0390.jpg"])
-# manager.resize_all()
-# # manager.resize(manager.data["image_0001.jpg"])
-# cv2.destroyAllWindows()
-
 print("Start")
 
 # hyperparameters
 seed = 42
 set_ratio = 0.2
+train_dataset_ratio = 0.8
+test_dataset_ratio = 0.1
+validation_dataset_ratio = 0.1
 
 batch_size = 200
 num_epochs = 30
@@ -176,17 +113,48 @@ manager.set_image_dimensions()
 print(manager.default_width)
 print(manager.default_height)
 dataset = FlowerDataset("../datasets/17flowers/jpg/", "../datasets/trimaps/", Resize((manager.default_width, manager.default_height)))
-manager.display(dataset[0])
-cv2.waitKey(0)
+# manager.display(dataset[0])
+# cv2.waitKey(0)
 
-test_dataset_size = int(set_ratio * len(dataset))
-train_dataset_size = len(dataset) - test_dataset_size
+train_dataset_size = int(train_dataset_ratio * len(dataset))
+test_dataset_size = int(test_dataset_ratio * len(dataset))
+validation_dataset_size = len(dataset) - train_dataset_size - test_dataset_size
+
 torch.manual_seed(seed)  # to ensure creating same sets
-test_dataset, train_dataset = torch.utils.data.random_split(dataset, [test_dataset_size, train_dataset_size])
+train_dataset, test_dataset, validation_dataset = torch.utils.data.random_split(dataset, [train_dataset_size, test_dataset_size, validation_dataset_size])
 print(f"Dataset size: {len(dataset)}")
-print(f"Test_dataset size: {len(test_dataset)}")
 print(f"Train_dataset size: {len(train_dataset)}")
-# show_img(*train_set[0], dataset)
+print(f"Test_dataset size: {len(test_dataset)}")
+print(f"Validation_dataset size: {len(validation_dataset)}")
+manager.display(train_dataset[0][1])
+
+train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True)
+test_dataloader = DataLoader(test_dataset, batch_size)
+validation_dataloader = DataLoader(validation_dataset, batch_size)
+# show_batch(train_dataloader)
+
+model = FlowerNet()
+
+print("End")
+# train(model, num_epochs, learning_rate, train_dataloader, validation_dataloader)
+
+#outs = torch.tensor([[0.0001, 0.0002, 0.0003], [0.0004, 0.0006, 0.0007], [0.00010, 0.0005, 0.0004]])
+# outs = torch.tensor([[1, 2, 3], [4, 6, 7], [10, 5, 4]])
+# _, predicted = torch.max(outs, 1)
+# print(f"Predicted: {predicted}")
+# train(model, num_epochs, learning_rate, train_dl, val_dl)
+# torch.save(model.state_dict(), model_path + "cifar10")
+#
+# show_img(*test_set[1000], test_set)
+# img, label = test_set[1000]
+# print(f"Pred: {predict(model, img, classes)}, Label: {classes[label]}")
+
+#model = SkyNet()
+#model.load_state_dict(torch.load(model_path + 'cifar10'))
+
+# evaluate(model, test_dl)
+'''
+print("End")
 
 # data_dir = "../datasets/17flowers/jpg"
 # # split data_dir into 3 sets: train, validate, test
@@ -217,40 +185,38 @@ print(f"Train_dataset size: {len(train_dataset)}")
 # print(f"Trimaps actual length: {len(dataset)}")
 
 '''
-test_set = ImageFolder(data_dir + '/test', transform=ToTensor())
-dataset = ImageFolder(data_dir + '/train',
-                      transform=ToTensor())  # returns a 2-element tuple, tensor(image data,:rgb, width, height) and int (in which class, airplane, ship, ... it belongs)
-
-val_size = int(set_ratio * len(dataset))
-train_size = len(dataset) - val_size
-
-torch.manual_seed(seed)  # to ensure creating same sets
-train_set, val_set = random_split(dataset, [train_size, val_size])
-print(f"Train_set size: {len(train_set)}")
-print(f"Val_set size: {len(val_set)}")
-# show_img(*train_set[0], dataset)
-
-train_dl = DataLoader(train_set, batch_size, shuffle = True)
-val_dl = DataLoader(val_set, batch_size, shuffle = True)
-
-test_dl = DataLoader(test_set, batch_size)
-#show_batch(train_dl)
-
-model = SkyNet()
-#outs = torch.tensor([[0.0001, 0.0002, 0.0003], [0.0004, 0.0006, 0.0007], [0.00010, 0.0005, 0.0004]])
-outs = torch.tensor([[1, 2, 3], [4, 6, 7], [10, 5, 4]])
-_, predicted = torch.max(outs, 1)
-print(f"Predicted: {predicted}")
-train(model, num_epochs, learning_rate, train_dl, val_dl)
-torch.save(model.state_dict(), model_path + "cifar10")
-
-show_img(*test_set[1000], test_set)
-img, label = test_set[1000]
-print(f"Pred: {predict(model, img, classes)}, Label: {classes[label]}")
-
-#model = SkyNet()
-#model.load_state_dict(torch.load(model_path + 'cifar10'))
-
-evaluate(model, test_dl)
-'''
-print("End")
+# test_set = ImageFolder(data_dir + '/test', transform=ToTensor())
+# dataset = ImageFolder(data_dir + '/train',
+#                       transform=ToTensor())  # returns a 2-element tuple, tensor(image data,:rgb, width, height) and int (in which class, airplane, ship, ... it belongs)
+#
+# val_size = int(set_ratio * len(dataset))
+# train_size = len(dataset) - val_size
+#
+# torch.manual_seed(seed)  # to ensure creating same sets
+# train_set, val_set = random_split(dataset, [train_size, val_size])
+# print(f"Train_set size: {len(train_set)}")
+# print(f"Val_set size: {len(val_set)}")
+# # show_img(*train_set[0], dataset)
+#
+# train_dl = DataLoader(train_set, batch_size, shuffle = True)
+# val_dl = DataLoader(val_set, batch_size, shuffle = True)
+#
+# test_dl = DataLoader(test_set, batch_size)
+# #show_batch(train_dl)
+#
+# model = SkyNet()
+# #outs = torch.tensor([[0.0001, 0.0002, 0.0003], [0.0004, 0.0006, 0.0007], [0.00010, 0.0005, 0.0004]])
+# outs = torch.tensor([[1, 2, 3], [4, 6, 7], [10, 5, 4]])
+# _, predicted = torch.max(outs, 1)
+# print(f"Predicted: {predicted}")
+# train(model, num_epochs, learning_rate, train_dl, val_dl)
+# torch.save(model.state_dict(), model_path + "cifar10")
+#
+# show_img(*test_set[1000], test_set)
+# img, label = test_set[1000]
+# print(f"Pred: {predict(model, img, classes)}, Label: {classes[label]}")
+#
+# #model = SkyNet()
+# #model.load_state_dict(torch.load(model_path + 'cifar10'))
+#
+# evaluate(model, test_dl)

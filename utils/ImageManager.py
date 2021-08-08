@@ -55,16 +55,9 @@ class ImageManager:
             width = int(self.default_height // ratio)
             img = cv2.resize(img, (width, height))
         result = np.zeros((self.default_height, self.default_width, 3), np.uint8)
-        # cv2.imshow("Image", img)
         start_x = (self.default_width - width) // 2
         start_y = (self.default_height - height) // 2
-        # print("Height: ", height)
-        # print("Width: ", width)
-        # print("Start x: ", start_x)
-        # print("Start y: ", start_y)
         result[start_y:start_y + height, start_x:start_x + width] = img
-        # cv2.imshow("Img resized", result)
-        # cv2.waitKey(0)
         return result
 
     def set_image_dimensions(self):
@@ -175,33 +168,3 @@ class ImageManager:
         return daffodils, snowdrops, lily_valleys, bluebells, crocuses, irises, tigerlilies, tulips, \
             fritillaries, sunflowers, daisies, colts_foots, dandellions, cowslips, buttercups, windflowers, \
             pansies
-
-
-        # max_width_img = ""
-        # wide = 0
-        # tall = 0
-        # widths = []
-        # heights = []
-        # max_height = 0
-        # for i in range(0, len(image_names)):
-        #     self.data.append(cv2.imread(self.data_dir + "/" + image_names[i]))
-        #     h, w = self.data[i].shape[:2]
-        #     widths.append(w)
-        #     heights.append(h)
-        #     if w > h:
-        #         wide += 1
-        #     else:
-        #         tall += 1
-        #     if w > self.normalized_width:
-        #         self.normalized_width = w
-        #         self.normalized_height = h
-        #         max_width_img = self.image_names[i]
-        #     if h > max_height:
-        #         max_height = h
-        # widths.sort()
-        # heights.sort()
-        # print(f"Width mediane: {widths[len(widths)//2]}")
-        # print(f"height mediane: {heights[len(heights)//2]}")
-        # print(f"Max width: {self.normalized_width}, Max width image: {max_width_img}")
-        # print(f"Max height: {max_height}, standard height: {self.normalized_height}")
-        # print(f"Wide images: {wide}, tall images: {tall}")
