@@ -6,6 +6,7 @@ class DiceLoss(nn.Module):
         super(DiceLoss, self).__init__()
 
     def forward(self, inputs, targets, smooth=1):
+        print("Inputs.type(): ", type(inputs))
         # comment out if your model contains a sigmoid or equivalent activation layer
         # inputs = torch.sigmoid(inputs)
 

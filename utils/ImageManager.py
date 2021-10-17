@@ -38,6 +38,7 @@ class ImageManager:
 
     def displayTensor(self, image):
         print(f"Image type: {type(image.numpy().transpose((1, 2, 0)))}")
+        print("Image in displayTensor(): ", image.numpy().transpose((1, 2, 0)))
         cv2.imshow("Image", image.numpy().transpose((1, 2, 0)))
         cv2.waitKey(0)
 
