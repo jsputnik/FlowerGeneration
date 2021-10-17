@@ -36,9 +36,13 @@ class ImageManager:
         # del files[:2]  # remove first 2 files not containing any images
         # self.image_names = [files[i] for i in indexes]
 
-    def display(self, img):
-        print(f"Img type: {type(img)}")
-        cv2.imshow("Image", img)
+    def displayTensor(self, image):
+        print(f"Image type: {type(image.numpy().transpose((1, 2, 0)))}")
+        cv2.imshow("Image", image.numpy().transpose((1, 2, 0)))
+        cv2.waitKey(0)
+
+    def displayImage(self, image):
+        cv2.imshow("Image", image)
         cv2.waitKey(0)
 
     def resize_all(self):

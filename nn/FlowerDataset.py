@@ -7,7 +7,7 @@ import cv2
 
 class FlowerDataset(Dataset):
 
-    def __init__(self, images_root: str, trimaps_root: str, transform=None):
+    def __init__(self, images_root: str, trimaps_root: str, transform):
         self.images_root = images_root
         self.trimaps_root = trimaps_root
         self.transform = transform

@@ -44,3 +44,8 @@ class Resize:
         # landmarks = landmarks * [new_w / w, new_h / h]
         #
         # return {'image': img, 'landmarks': landmarks}
+
+
+class ToTensor(object):
+    def __call__(self, image):
+        return image.transpose((2, 0, 1))
