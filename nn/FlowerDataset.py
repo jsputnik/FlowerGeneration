@@ -7,10 +7,11 @@ import cv2
 
 class FlowerDataset(Dataset):
 
-    def __init__(self, images_root: str, trimaps_root: str, transform):
+    def __init__(self, images_root: str, trimaps_root: str, imageTransform, trimapTransform):
         self.images_root = images_root
         self.trimaps_root = trimaps_root
-        self.transform = transform
+        self.imageTransform = imageTransform
+        self.trimapTransform = trimapTransform
         self.config_file = "imlist.mat"
         self.image_names, self.trimap_names = self.get_valid_images()
 
@@ -45,7 +46,9 @@ class FlowerDataset(Dataset):
 
         image = cv2.imread(self.images_root + "/" + self.image_names[index])
         trimap = cv2.imread(self.trimaps_root + "/" + self.trimap_names[index])
-        if self.transform:
-            image = self.transform(image)
-            trimap = self.transform(trimap)
+        image = self.imageTransform(image)
+        trimap = self.trimapTransform(trimap)
+        # if self.transform:
+        #     image = self.transform(image)
+        #     trimap = self.transform(trimap)
         return image, trimap
