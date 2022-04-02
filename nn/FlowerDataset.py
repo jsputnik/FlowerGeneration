@@ -4,6 +4,8 @@ import os
 from scipy.io import loadmat
 import cv2
 
+from utils import Helpers
+
 
 class FlowerDataset(Dataset):
 
@@ -47,8 +49,5 @@ class FlowerDataset(Dataset):
         image = cv2.imread(self.images_root + "/" + self.image_names[index])
         trimap = cv2.imread(self.trimaps_root + "/" + self.trimap_names[index])
         image = self.imageTransform(image)
-        trimap = self.trimapTransform(trimap)
-        # if self.transform:
-        #     image = self.transform(image)
-        #     trimap = self.transform(trimap)
+        trimap = self.trimapTransform(trimap).long()
         return image, trimap

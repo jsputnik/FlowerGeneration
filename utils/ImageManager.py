@@ -1,7 +1,8 @@
 import os
-import numpy as np
 from scipy.io import loadmat
 import cv2
+import torchvision
+import matplotlib.pyplot as plt
 
 
 class ImageManager:
@@ -36,33 +37,6 @@ class ImageManager:
         # del files[:2]  # remove first 2 files not containing any images
         # self.image_names = [files[i] for i in indexes]
 
-    def displayTensor(self, image):
-        cv2.imshow("Image", image.numpy().transpose((1, 2, 0)))
-        cv2.waitKey(0)
-
-    def displayImage(self, image):
-        cv2.imshow("Image", image)
-        cv2.waitKey(0)
-
-    def resize_all(self):
-        for name, data in self.data.items():
-            print("Current img: ", name)
-            self.resized.update({name: self.resize(data)})
-        print("Resized images keys: ", self.resized.keys())
-
-    def resize(self, img):
-        height, width = img.shape[:2]
-        ratio = height / width
-        if height > self.default_height:
-            height = self.default_height
-            width = int(self.default_height // ratio)
-            img = cv2.resize(img, (width, height))
-        result = np.zeros((self.default_height, self.default_width, 3), np.uint8)
-        start_x = (self.default_width - width) // 2
-        start_y = (self.default_height - height) // 2
-        result[start_y:start_y + height, start_x:start_x + width] = img
-        return result
-
     def set_image_dimensions(self):
         width = 0
         height = 0
@@ -75,6 +49,19 @@ class ImageManager:
         self.default_height = height
         print("Default width: ", self.default_width)
         print("Default height: ", self.default_height)
+
+    def show_batch(dl):
+        for images, labels in dl:
+            print("images[0] type: ", type(images[0]))
+            print("images shape: ", images.shape)
+            print("images[0] shape: ", images[0].shape)
+            print("permuted images.shape: ", images.shape)
+            grid_img = torchvision.utils.make_grid(images, nrow=4)
+            print("grid shape: ", grid_img.shape)
+            plt.axis("off")
+            plt.imshow(grid_img.permute(1, 2, 0))
+            plt.show()
+            break
 
     # must be caled after load()
     def get_statistics(self):
