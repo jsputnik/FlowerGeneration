@@ -90,25 +90,82 @@ def detect_intersection_points(image, contours, worm_length, min_distance):
     # cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/divided_flower14.png", result_image)
 
 
-def divide_petals(intersection_points, middle, contour):
+# intersection points are sorted in the same direction contour is being iterated
+def divide_petals(image, intersection_points, middle, contour):
     petals = []
-    petal_pixels = []
     first_point = intersection_points[0]
+    previous_connecting_line_pixels = []
+    current_connecting_line_pixels = []
+    petal_pixels = []
+
+    # modify contour
+    ipoint_contour_indexes = np.all(contour == intersection_points[0], axis=1).nonzero()
+    assert(len(ipoint_contour_indexes) == 1)
+    first_contour_point_index = ipoint_contour_indexes[0][0]
+    print("first ipoint: ", intersection_points[0])
+    print("first index: ", first_contour_point_index)
+    contour = contour.tolist()
+    contour = contour[first_contour_point_index + 1:] + contour[:first_contour_point_index + 1]
+    print("Contour: ", contour)
+
     # find intersection_points[0] in contour
     x_coords, y_coords = line(first_point[1], first_point[0], middle[1], middle[0])
     assert(len(x_coords) == len(y_coords))
     for index in range(len(x_coords)):
-        petal_pixels.append(np.array([x_coords[index], y_coords[index]]))
-    for point in intersection_points[1:]:
-        x_coords, y_coords = line(point[1], point[0], middle[1], middle[0])
-        print("rr: ", x_coords)
-        print("cc: ", y_coords)
+        previous_connecting_line_pixels.append(np.array([x_coords[index], y_coords[index]]))
+    current_contour_index = 0
+    # find pixels belonging to middle <-> current intersection point line
+    for index in range(1, len(intersection_points) + 1):
+        petal_contour_pixels = []
+        current_ipoint = intersection_points[0] if index == len(intersection_points) else intersection_points[index]
+        x_coords, y_coords = line(current_ipoint[1], current_ipoint[0], middle[1], middle[0])
+        # print("rr: ", x_coords)
+        # print("cc: ", y_coords)
         assert (len(x_coords) == len(y_coords))
-        for index in range(len(x_coords)):
-            petal_pixels.append(np.array([x_coords[index], y_coords[index]]))
+        for pixel_index in range(len(x_coords)):
+            current_connecting_line_pixels.append(np.array([x_coords[pixel_index], y_coords[pixel_index]]))
+        while np.any(contour[current_contour_index] != current_ipoint):
+            normalized_pixel = np.array([contour[current_contour_index][1], contour[current_contour_index][0]])
+            petal_contour_pixels.append(normalized_pixel)
+            current_contour_index += 1
+        closed_contour_pixels = previous_connecting_line_pixels + current_connecting_line_pixels + petal_contour_pixels
+        petal_image = fill_contour(image.copy(), closed_contour_pixels)
+        rows, columns, depth = petal_image.shape
+        for row in range(rows):
+            for column in range(columns):
+                if (petal_image[row][column][:] == np.array([255, 255, 255])).all():
+                    petal_pixels.append(np.array([row, column]))
+
+
+        print("Petal pixels: ", petal_pixels)
         petals.append(petal_pixels)
+        previous_connecting_line_pixels = current_connecting_line_pixels
+        current_connecting_line_pixels = []
         petal_pixels = []
     return petals
+
+
+def fill_contour(image, contour):
+    for pixel in contour:
+        image[pixel[0]][pixel[1]] = np.array([255, 0, 0])
+    print("Petal to be filled")
+    imops.displayImage(image)
+    black_white_transform = transforms.Compose(
+        [Transforms.ChangeColor(np.array([255, 255, 255]),
+                                np.array([0, 0, 0])),
+         Transforms.ChangeColor(np.array([0, 0, 255]),
+                                np.array([0, 0, 0])),
+         Transforms.ChangeColor(np.array([255, 0, 0]), np.array([255, 255, 255]))
+         ])
+    result_image = black_white_transform(image)
+    # imops.displayImage(result_image)
+    thresholded_image = threshold_image(result_image)
+    contours, hierarchy = cv2.findContours(thresholded_image,
+                                           cv2.RETR_LIST,
+                                           cv2.CHAIN_APPROX_NONE)
+    cv2.drawContours(result_image, contours, 0, (255, 255, 255), thickness=-1)
+    # imops.displayImage(result_image)
+    return result_image
 
 
 def decomposition_algorithm(image):
@@ -136,9 +193,16 @@ def decomposition_algorithm(image):
     print("intersection points: ", intersection_points)
     print(np.array([130, 60]).astype(int))
     print(type(np.array([130, 60]).astype(int)))
-    petals = divide_petals(intersection_points, np.array([130, 60]).astype(int), big_contours[0].squeeze())  # TODO: iterate over all big contours
-    # for pixel in petals[1]:
-    #     result_image[pixel[0]][pixel[1]] = np.array([255, 0, 0])
+    petals = divide_petals(result_image.copy(), intersection_points, np.array([130, 60]).astype(int), big_contours[0].squeeze())
+    # TODO: iterate over all big contours
+    for pixel in petals[0]:
+        result_image[pixel[0]][pixel[1]] = np.array([255, 0, 0])
+
+    for pixel in petals[1]:
+        result_image[pixel[0]][pixel[1]] = np.array([0, 255, 0])
+
+    for pixel in petals[2]:
+        result_image[pixel[0]][pixel[1]] = np.array([0, 0, 255])
     imops.displayImage(result_image)
 
 

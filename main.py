@@ -38,7 +38,6 @@ dec.decomposition_algorithm(segmap)
 sys.exit()
 
 
-
 # detecting contours
 black_white_transform = transforms.Compose([Transforms.ChangeColor(np.array([0, 128, 128]), np.array([0, 0, 0])),
                                             Transforms.ChangeColor(np.array([0, 0, 128]), np.array([255, 255, 255])),
