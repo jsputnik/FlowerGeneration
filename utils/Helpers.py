@@ -27,3 +27,8 @@ def predict(model, image):
     input_tensor = image_tensor.unsqueeze(0).to(Device.get_default_device())
     output = model(input_tensor)
     return output
+
+
+def remove_file_extension(filename):
+    separator = "."
+    return filename.split(separator, 1)[0]

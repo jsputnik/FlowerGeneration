@@ -146,6 +146,7 @@ def divide_petals(image, intersection_points, middle, contour):
 
 
 def fill_contour(image, contour):
+    # TODO: fix connecting line pixels in different petals overlapping
     for pixel in contour:
         image[pixel[0]][pixel[1]] = np.array([255, 0, 0])
     print("Petal to be filled")
@@ -187,9 +188,9 @@ def decomposition_algorithm(image):
     print((black_white_image == np.array([0, 255, 0])).all(axis=2).sum())
     print((black_white_image == np.array([0, 0, 0])).all(axis=2).sum())
     print((black_white_image == np.array([255, 255, 255])).all(axis=2).sum())
-    imops.displayImage(black_white_image)  # [60][130]
+    # imops.displayImage(black_white_image)  # [60][130]
     result_image, intersection_points = detect_intersection_points(black_white_image, big_contours, worm_length=21, min_distance=4.5)
-    imops.displayImage(result_image)
+    # imops.displayImage(result_image)
     print("intersection points: ", intersection_points)
     print(np.array([130, 60]).astype(int))
     print(type(np.array([130, 60]).astype(int)))
@@ -203,6 +204,8 @@ def decomposition_algorithm(image):
 
     for pixel in petals[2]:
         result_image[pixel[0]][pixel[1]] = np.array([0, 0, 255])
-    imops.displayImage(result_image)
+    # imops.displayImage(result_image)
+    return result_image
+
 
 

@@ -1,10 +1,12 @@
 import numpy as np
 import torch
+import cv2
 import utils.Helpers as Helpers
 import utils.Device as Device
 import torch.nn as nn
 import nn.transforms as Transforms
 from torchvision.transforms import transforms
+import segmentation_models_pytorch as smp
 
 
 def train(model, epochs, learning_rate, train_dataloader, validation_dataloader, loss_fun=nn.CrossEntropyLoss(),
@@ -50,3 +52,21 @@ def evaluate(model, validation_dataloader):
                 # image.displayImage(segmap_image)
     avg_accuracy = avg_accuracy / len(validation_dataloader.dataset) * 100
     return avg_accuracy
+
+
+def segment(image_path, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/models/95.38flower"):
+    number_of_classes = 4
+
+    model = smp.Unet(
+        encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+        # encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+        in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+        classes=number_of_classes,  # model output channels (number of classes in your dataset)
+    ).to(Device.get_default_device())
+    model.load_state_dict(torch.load(model_path))
+    test_image = cv2.imread(image_path)
+    original_height, original_width = test_image.shape[:2]
+    output = Helpers.predict(model, test_image)
+    segmap = Helpers.decode_segmap(output, number_of_classes)
+
+    return segmap

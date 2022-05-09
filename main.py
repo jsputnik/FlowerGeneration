@@ -19,9 +19,10 @@ import segmentation_models_pytorch as smp
 from skimage.draw import line
 import decomposition.algorithm as dec
 
-
 print("Start")
+
 segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower14.png")
+# segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/17flower_dataset/17flowers/jpg/image_0861.jpg")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_testFlower.png")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower93.png")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower250.png")
@@ -33,7 +34,6 @@ segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower1
 # print((segmap == np.array([0, 128, 128])).all(axis=2).sum())  # 11056
 # print(segmap.all(axis=2).sum())  # 4979
 # imops.displayImage(segmap)
-
 dec.decomposition_algorithm(segmap)
 sys.exit()
 
