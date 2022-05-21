@@ -70,3 +70,20 @@ def segment(image_path, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/Fl
     segmap = Helpers.decode_segmap(output, number_of_classes)
 
     return segmap
+
+
+def segment_image(image, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/models/95.38flower"):
+    number_of_classes = 4
+
+    model = smp.Unet(
+        encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+        # encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+        in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+        classes=number_of_classes,  # model output channels (number of classes in your dataset)
+    ).to(Device.get_default_device())
+    model.load_state_dict(torch.load(model_path))
+    original_height, original_width = image.shape[:2]
+    output = Helpers.predict(model, image)
+    segmap = Helpers.decode_segmap(output, number_of_classes)
+
+    return segmap

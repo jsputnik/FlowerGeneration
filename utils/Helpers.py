@@ -32,3 +32,14 @@ def predict(model, image):
 def remove_file_extension(filename):
     separator = "."
     return filename.split(separator, 1)[0]
+
+
+def apply_mask(image, mask, color=np.array([0, 0, 0]), new_color=np.array([0, 0, 0])):
+    image[mask == color.all(-1)] = new_color
+    return image
+
+
+def apply_boolean_mask(image, mask, new_color=np.array([0, 0, 0])):
+    image[mask] = new_color
+    return image
+

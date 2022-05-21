@@ -21,8 +21,7 @@ import decomposition.algorithm as dec
 
 print("Start")
 
-segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower14.png")
-# segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/17flower_dataset/17flowers/jpg/image_0861.jpg")
+segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/17flower_dataset/17flowers/jpg/image_0861.jpg")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_testFlower.png")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower93.png")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower250.png")
