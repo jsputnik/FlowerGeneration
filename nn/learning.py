@@ -63,10 +63,8 @@ def segment(image_path, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/Fl
         in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
         classes=number_of_classes,  # model output channels (number of classes in your dataset)
     ).to(Device.get_default_device())
-    print(f"PATH: {model_path}")
     model.load_state_dict(torch.load(model_path))
     test_image = cv2.imread(image_path)
-    original_height, original_width = test_image.shape[:2]
     output = Helpers.predict(model, test_image)
     label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
     if number_of_classes == 3:
@@ -75,7 +73,6 @@ def segment(image_path, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/Fl
     return segmap
 
 
-# TODO: make it apply to center segmentation too
 def segment_image(image, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/models/95.38flower", number_of_classes=4):
     model = smp.Unet(
         encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
@@ -84,8 +81,9 @@ def segment_image(image, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/F
         classes=number_of_classes,  # model output channels (number of classes in your dataset)
     ).to(Device.get_default_device())
     model.load_state_dict(torch.load(model_path))
-    original_height, original_width = image.shape[:2]
     output = Helpers.predict(model, image)
-    segmap = Helpers.decode_segmap(output, number_of_classes)
-
+    label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
+    if number_of_classes == 3:
+        label_colors = np.array([(0, 0, 0), (255, 255, 255), (128, 128, 128)])
+    segmap = Helpers.decode_segmap(output, number_of_classes, label_colors=label_colors)
     return segmap

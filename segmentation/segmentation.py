@@ -13,6 +13,7 @@ import utils.image_operations as imops
 import utils.Helpers as Helpers
 
 
+
 def train_flower_centers():
     batch_size = 2
     epochs = 10

@@ -4,6 +4,7 @@ import decomposition.algorithm as dec
 from flask import Flask, render_template, request, redirect, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 import utils.Helpers as Helpers
+import segmentation.segmentation as seg
 
 MAIN_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static"
 UPLOAD_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/upload"
@@ -153,7 +154,8 @@ def shutdown_server():
 
 def segment(filename):
     print("segmenting")
-    segmap = learning.segment(app.config["UPLOAD_FOLDER"] + "/" + filename)
+    segmap = seg.segment_flower_parts(app.config["UPLOAD_FOLDER"] + "/" + filename)
+    # segmap = learning.segment(app.config["UPLOAD_FOLDER"] + "/" + filename)
     return segmap
 
 

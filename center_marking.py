@@ -10,11 +10,9 @@ import sys
 import os
 import segmentation.segmentation as seg
 from PIL import Image
-import decomposition.algorithm as dec
-import math
 
 # original_image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/browneyedsusan.jpg"
-original_image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/datasets/17flowers/jpg/image_0008.jpg"
+original_image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/datasets/17flowers/jpg/image_0004.jpg"
 segmap = seg.segment_flower_parts(original_image_path)
 # black_white_transform = transforms.Compose([Transforms.ChangeColor(np.array([128, 128, 128]), np.array([0, 0, 0])),
 #                                             Transforms.ChangeColor(np.array([0, 0, 128]), np.array([0, 0, 0])),
@@ -23,7 +21,7 @@ segmap = seg.segment_flower_parts(original_image_path)
 # segmap = black_white_transform(segmap)
 center_point = dec.get_center_point(segmap)
 imops.displayImage(segmap)
-segmap[center_point[1]][center_point[0]] = np.array([255, 0, 0])
+segmap[center_point[1]][center_point[0]] = np.array([128, 0, 0])
 segmap[center_point[1]+1][center_point[0]] = np.array([255, 0, 0])
 segmap[center_point[1]-1][center_point[0]] = np.array([255, 0, 0])
 segmap[center_point[1]+2][center_point[0]] = np.array([255, 0, 0])
