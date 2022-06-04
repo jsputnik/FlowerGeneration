@@ -44,6 +44,25 @@ class Resize:
         # return {'image': img, 'landmarks': landmarks}
 
 
+class RestoreOriginalSize:
+    def __init__(self, output_size):
+        assert isinstance(output_size, tuple)
+        self.target_width = output_size[0]
+        self.target_height = output_size[1]
+
+    def __call__(self, image):
+        height, width = image.shape[:2]
+        ratio = height / width
+        width = int(self.target_height // ratio)
+        # resize leaving black area on sides
+        image = cv2.resize(image, (width, self.target_height), interpolation=cv2.INTER_NEAREST)
+        left = (width - self.target_width) / 2
+        right = left + self.target_width
+        result = image[0:int(self.target_height), int(left):int(right)]
+
+        return result
+
+
 class ChangeColor:
     def __init__(self, old_color, new_color):
         self.old_color = old_color
@@ -116,3 +135,16 @@ class ToImage:
 class ToTensor(object):
     def __call__(self, image):
         return image.transpose((2, 0, 1))
+
+
+class ToCenterMask:
+    def __call__(self, image):
+        black = np.array([0, 0, 0])
+        white = np.array([(255, 255, 255)])
+        gray = np.array([(128, 128, 128)])
+
+        mask = np.zeros((image.shape[:2]), dtype=np.int)
+        mask[(image == black).all(axis=2)] = 0
+        mask[(image == white).all(axis=2)] = 1
+        mask[(image == gray).all(axis=2)] = 2
+        return mask

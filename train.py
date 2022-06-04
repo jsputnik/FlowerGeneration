@@ -20,7 +20,7 @@ test_dataset_ratio = 0.1
 validation_dataset_ratio = 0.1
 number_of_classes = 4
 
-batch_size = 8
+batch_size = 1#8
 epochs = 20
 learning_rate = 0.05
 model_path = "models/"

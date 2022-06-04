@@ -5,8 +5,19 @@ import numpy as np
 import cv2
 import utils.image_operations as imops
 from skimage.draw import line
+from skimage.measure import regionprops
+import math
 
 
+def get_center_point(image):
+    mask = np.all(image == np.array([0, 128, 0]), axis=-1).astype(int)
+    properties = regionprops(mask, image)
+    center_of_mass = properties[0].centroid
+    print(f"Center of mass: {center_of_mass}")
+    return math.floor(center_of_mass[0]), math.floor(center_of_mass[1])
+
+
+# takes black and white image
 def threshold_image(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     ret, result_image = cv2.threshold(image, 127, 255, 0)
