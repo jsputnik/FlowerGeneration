@@ -7,6 +7,8 @@ import nn.transforms as Transforms
 import utils.Device as Device
 import nn.learning as learning
 import utils.image_operations as imops
+from utils.Color import Color
+from skimage.measure import regionprops
 
 
 # def decode_segmap(image_tensor, number_of_classes):
@@ -75,6 +77,104 @@ def apply_boolean_mask(image, mask, new_color=np.array([0, 0, 0])):
     image = image.copy()
     image[mask] = new_color
     return image
+
+
+# def separate_flower_parts(image, mask, petal_number):
+#     # TODO: color center to not white
+#     height, width = image.shape[:2]
+#     result_image_width = 2 * width
+#     result_image_height = 2 * height
+#     result_image = np.zeros((result_image_height, result_image_width, 3)).astype(np.uint8)
+#     current_color: np.ndarray = Color.first_petal_color.copy()
+#     x = 0
+#     y = 0
+#     max_part_height = 0
+#     spacing = 10
+#     for index in range(petal_number):
+#         masked_part = np.all(mask == current_color, axis=-1).astype(int)
+#         properties = regionprops(masked_part, image)
+#         part_image = properties[0].intensity_image
+#         part_height, part_width = part_image.shape[:2]
+#         if part_height > max_part_height:
+#             if part_height > result_image_height:
+#                 print("Error: petal to large, image too small")
+#             max_part_height = part_height
+#         if x + part_width + spacing > result_image_width:
+#             x = 0
+#             y += max_part_height + spacing
+#             if y + part_height + spacing > result_image_height:
+#                 print("Error: image not large enough")
+#         # imops.displayImage(part_image)
+#         result_image[y:y+part_height, x:x+part_width] = part_image
+#         # imops.displayImage(result_image)
+#         x += part_width + spacing
+#         current_color -= Color.color_difference
+#     # now center
+#     masked_part = np.all(mask == Color.center_color, axis=-1).astype(int)
+#     properties = regionprops(masked_part, image)
+#     part_image = properties[0].intensity_image
+#     part_height, part_width = part_image.shape[:2]
+#     if part_height > max_part_height:
+#         if part_height > result_image_height:
+#             print("Error: petal to large, image too small")
+#         max_part_height = part_height
+#     if x + part_width + spacing > result_image_width:
+#         x = 0
+#         y += max_part_height + spacing
+#         if y + part_height + spacing > result_image_height:
+#             print("Error: image not large enough")
+#     # imops.displayImage(part_image)
+#     result_image[y:y + part_height, x:x + part_width] = part_image
+#     # imops.displayImage(result_image)
+#     x += part_width + spacing
+#     return result_image
+
+
+def separate_flower_parts(image, mask, petal_number):
+    # TODO: color center to not white
+    height, width = image.shape[:2]
+    result_image_width = 2 * width
+    result_image_height = 2 * height
+    result_image = np.zeros((result_image_height, result_image_width, 3)).astype(np.uint8)
+    current_color: np.ndarray = Color.first_petal_color.copy()
+    x = 0
+    y = 0
+    max_part_height = 0
+    for index in range(petal_number):
+        part_image = separate_single_part(image, mask, current_color)
+        y, x, max_part_height = update_result(result_image, part_image, y, x, max_part_height)
+        current_color -= Color.color_difference
+    # now center
+    part_image = separate_single_part(image, mask, Color.center_color)
+    update_result(result_image, part_image, y, x, max_part_height)
+    return result_image
+
+
+def separate_single_part(image, mask, color):
+    masked_part = np.all(mask == color, axis=-1).astype(int)
+    properties = regionprops(masked_part, image)
+    part_image = properties[0].intensity_image
+    return part_image
+
+
+def update_result(result_image, part_image, y, x, max_part_height):
+    spacing = 10
+    result_image_height, result_image_width = result_image.shape[:2]
+    part_height, part_width = part_image.shape[:2]
+    if part_height > max_part_height:
+        if part_height > result_image_height:
+            print("Error: petal to large, image too small")
+        max_part_height = part_height
+    if x + part_width + spacing > result_image_width:
+        x = 0
+        y += max_part_height + spacing
+        if y + part_height + spacing > result_image_height:
+            print("Error: image not large enough")
+    # imops.displayImage(part_image)
+    result_image[y:y + part_height, x:x + part_width] = part_image
+    # imops.displayImage(result_image)
+    x += part_width + spacing
+    return y, x, max_part_height
 
 
 def create_center_segmaps(masks, originals):

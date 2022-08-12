@@ -21,7 +21,6 @@ import decomposition.algorithm as dec
 
 print("Start")
 
-segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/17flower_dataset/17flowers/jpg/image_0861.jpg")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_testFlower.png")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower93.png")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower250.png")
@@ -33,7 +32,15 @@ segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/17flower_dataset/
 # print((segmap == np.array([0, 128, 128])).all(axis=2).sum())  # 11056
 # print(segmap.all(axis=2).sum())  # 4979
 # imops.displayImage(segmap)
-dec.decomposition_algorithm(segmap)
+original = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/upload/image_0014.jpg")
+height, width = original.shape[:2]
+segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/segment/image_0014.png")
+decomposed_image, number_of_petals = dec.decomposition_algorithm(segmap)
+to_original_size = Transforms.RestoreOriginalSize((width, height))
+result_image = to_original_size(decomposed_image)
+imops.displayImage(result_image)
+result_image = Helpers.separate_flower_parts(original, result_image, number_of_petals)
+imops.displayImage(result_image)
 sys.exit()
 
 

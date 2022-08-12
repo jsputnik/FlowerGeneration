@@ -1,10 +1,10 @@
 import cv2
-import nn.learning as learning
 import decomposition.algorithm as dec
 from flask import Flask, render_template, request, redirect, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 import utils.Helpers as Helpers
 import segmentation.segmentation as seg
+import nn.transforms as flowertransforms
 
 MAIN_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static"
 UPLOAD_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/upload"
@@ -17,16 +17,14 @@ app.config["MAIN_FOLDER"] = MAIN_FOLDER
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["SEGMENT_FOLDER"] = SEGMENT_FOLDER
 app.config["DECOMPOSE_FOLDER"] = DECOMPOSE_FOLDER
+app.config["ORIGINAL_WIDTH"] = 0
+app.config["ORIGINAL_HEIGHT"] = 0
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    print("Method: ", request.method)
     if request.method == "POST":
         if request.form["upload_button"] == "Upload":
-
-            print("request: ", request)
-            print("Request files: ", request.files)
             if "file" not in request.files:
                 print("No file part")
                 return redirect(request.url)
@@ -38,11 +36,9 @@ def index():
                 filename = secure_filename(file.filename)
                 full_filename = app.config["UPLOAD_FOLDER"] + "/" + filename
                 file.save(full_filename)
-                print("Filename: ", full_filename)
                 return redirect(url_for("upload_image",
                                         filename=filename))
     else:
-        print("GET")
         return render_template("index.html")
 
 
@@ -65,7 +61,10 @@ def upload_image(filename):
                 return redirect(url_for("upload_image",
                                         filename=filename))
         elif request.form["submit_button"] == "Segment":
-            print("Segment: ", filename)
+            # original_image = cv2.imread(app.config["UPLOAD_FOLDER"] + "/" + filename)
+            # height, width = original_image.shape[:2]
+            # app.config["ORIGINAL_WIDTH"] = width
+            # app.config["ORIGINAL_HEIGHT"] = height
             segmap = segment(filename)
             filename = Helpers.remove_file_extension(filename) + ".png"
             print("Filename no extension: ", filename)
@@ -97,8 +96,6 @@ def segment_view(filename):
                                         filename=filename))
         elif request.form["submit_button"] == "Decompose":
             print("Decompose: ", filename)
-            filename_no_extension = Helpers.remove_file_extension(filename)
-            print("Filename no extension: ", filename_no_extension)
             decompose(filename)
             return redirect(url_for("decompose_view", filename=filename))
     else:
@@ -155,14 +152,19 @@ def shutdown_server():
 def segment(filename):
     print("segmenting")
     segmap = seg.segment_flower_parts(app.config["UPLOAD_FOLDER"] + "/" + filename)
-    # segmap = learning.segment(app.config["UPLOAD_FOLDER"] + "/" + filename)
     return segmap
 
 
 def decompose(filename):
     print("decomposing: ", filename)
     segmap = cv2.imread(app.config["SEGMENT_FOLDER"] + "/" + filename)
-    result = dec.decomposition_algorithm(segmap)
+    result, number_of_petals = dec.decomposition_algorithm(segmap)
+    original_filename = Helpers.remove_file_extension(filename) + ".jpg"
+    original = cv2.imread(app.config["UPLOAD_FOLDER"] + "/" + original_filename)
+    height, width = original.shape[:2]
+    to_original_size = flowertransforms.RestoreOriginalSize((width, height))
+    result = to_original_size(result)
+    result = Helpers.separate_flower_parts(original, result, number_of_petals)
     cv2.imwrite(app.config["DECOMPOSE_FOLDER"] + "/" + filename, result)
 
 
