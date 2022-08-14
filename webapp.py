@@ -45,7 +45,6 @@ def index():
 @app.route("/upload/<filename>", methods=["GET", "POST"])
 def upload_image(filename):
     if request.method == "POST":
-        print("POST upload_image")
         if request.form["submit_button"] == "Upload":
             if "file" not in request.files:
                 print("No file part")
@@ -150,7 +149,6 @@ def shutdown_server():
 
 
 def segment(filename):
-    print("segmenting")
     segmap = seg.segment_flower_parts(app.config["UPLOAD_FOLDER"] + "/" + filename)
     return segmap
 

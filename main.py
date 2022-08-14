@@ -18,8 +18,14 @@ import utils.image_operations as imops
 import segmentation_models_pytorch as smp
 from skimage.draw import line
 import decomposition.algorithm as dec
+import segmentation.segmentation as seg
+import tests as tests
 
 print("Start")
+# tests.test_center_image_modifiers()
+# seg.train_flower_centers()
+tests.test_center_segmentation()
+sys.exit()
 
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_testFlower.png")
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_flower93.png")
@@ -204,49 +210,3 @@ for contour in contours:
         big_contours.append(contour)
 cv2.drawContours(black_white_image, big_contours, -1, (0, 255, 0))
 imops.displayImagePair(black_white_image, image_gray)
-
-
-
-
-# manager = ImageManager("../datasets/17flowers/jpg", "../datasets/trimaps", "../datasets/trimaps/imlist.mat")
-# manager.load()
-# manager.set_image_dimensions()
-# dataset = FlowerDataset("../datasets/17flowers/jpg/",
-#                         "../datasets/trimaps/",
-#                         transforms.Compose([Transforms.Resize((256, 128)), transforms.ToTensor()]),
-#                         transforms.Compose([Transforms.Resize((256, 128)), Transforms.ToMask(),
-#                                             transforms.ToTensor()]))  # (864, 480)
-# train_dataset_size = int(train_dataset_ratio * len(dataset))
-# test_dataset_size = int(test_dataset_ratio * len(dataset))
-# validation_dataset_size = len(dataset) - train_dataset_size - test_dataset_size
-#
-# torch.manual_seed(seed)  # to ensure creating same sets
-# train_dataset, test_dataset, validation_dataset = torch.utils.data.random_split(
-#     dataset, [train_dataset_size, test_dataset_size, validation_dataset_size])
-# print(f"train dataset length: {len(train_dataset)}")
-# print(f"train dataset length: {len(validation_dataset)}")
-# print(f"train dataset length: {len(test_dataset)}")
-# train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True)
-# test_dataloader = DataLoader(test_dataset, batch_size)
-# validation_dataloader = DataLoader(validation_dataset, batch_size)
-# # show_batch(test_dataloader)
-# Learning.train(model, epochs, learning_rate, train_dataloader, validation_dataloader)
-# Learning.evaluate(model, test_dataloader)
-# torch.save(model.state_dict(), model_path + "flower1")
-# model.load_state_dict(torch.load(model_path + model_name))
-
-# output = Helpers.predict(model, train_dataset[3][0], train_dataset[3][1])
-# print("image.type: ", type(train_dataset[3][0]))
-# print("Trimaps.type: ", type(train_dataset[3][1]))
-# # rgb = output.squeeze().detach().numpy().transpose((1, 2, 0))
-# rgb = Helpers.decode_segmap(output, number_of_classes)
-# print("RGB shape: ", rgb.shape)
-# # print(dataset[3][1])
-# image.displayTensor(dataset[3][0])
-# image.displayImage(dataset[3][1])
-# print("Trimap: ", dataset[3][1])
-# image.displayImage(rgb)
-
-print("End")
-
-

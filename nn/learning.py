@@ -18,15 +18,13 @@ def train(model, epochs, learning_rate, train_dataloader, validation_dataloader,
         i = 1
         for batch in train_dataloader:
             inputs, trimaps = batch[0].to(Device.get_default_device()), batch[1].to(Device.get_default_device())
-            print("Inputs shape: ", inputs.shape)
-            print("Trimaps shape: ", trimaps.shape)
             opt.zero_grad()  # reset gradients
             outputs = model(inputs)  # put input batch through the model
             loss = loss_fun(outputs, torch.squeeze(trimaps))  # calculate loss on the batch
             loss.backward()  # calculate gradients
             opt.step()  # update parameters?
-            print(f"Loss: {loss.item()}")
-            if (i % 10 == 0):
+            # print(f"Loss: {loss.item()}")
+            if i % 10 == 0:
                 print(f"Batch {i}")
             i += 1
         evaluate(model, validation_dataloader)
@@ -39,7 +37,7 @@ def evaluate(model, validation_dataloader):
     avg_accuracy = 0
     with torch.no_grad():
         for batch in validation_dataloader:
-            print("Evaluating batch")
+            # print("Evaluating batch")
             inputs, trimaps = batch[0].to(Device.get_default_device()), batch[1]  # both are tensors
             outputs = model(inputs)
             for output, trimap in zip(outputs, trimaps):
@@ -48,8 +46,7 @@ def evaluate(model, validation_dataloader):
                 segmap_mask = transform(segmap_image).numpy()
                 correctly_assigned_pixels = np.sum(segmap_mask == trimap.numpy())
                 accuracy: float = float(correctly_assigned_pixels) / segmap_mask.size
-                # # TODO(?): only calculate not cropped area
-                print(f"accuracy: {accuracy}")
+                # print(f"accuracy: {accuracy}")
                 avg_accuracy += accuracy
                 # image.displayImage(segmap_image)
     avg_accuracy = avg_accuracy / len(validation_dataloader.dataset) * 100

@@ -1,6 +1,10 @@
 import numpy as np
 import cv2
 import torch
+from torchvision.transforms import transforms as ptransforms
+import torchvision.transforms.functional as ptf
+import PIL
+import random
 
 
 class Resize:
@@ -22,27 +26,6 @@ class Resize:
         result[start_y:start_y + height, start_x:start_x + width] = image
         return result
 
-        # image, landmarks = sample['image'], sample['landmarks']
-        #
-        # h, w = image.shape[:2]
-        # if isinstance(self.output_size, int):
-        #     if h > w:
-        #         new_h, new_w = self.output_size * h / w, self.output_size
-        #     else:
-        #         new_h, new_w = self.output_size, self.output_size * w / h
-        # else:
-        #     new_h, new_w = self.output_size
-        #
-        # new_h, new_w = int(new_h), int(new_w)
-        #
-        # img = transform.resize(image, (new_h, new_w))
-        #
-        # # h and w are swapped for landmarks because for images,
-        # # x and y axes are axis 1 and 0 respectively
-        # landmarks = landmarks * [new_w / w, new_h / h]
-        #
-        # return {'image': img, 'landmarks': landmarks}
-
 
 class RestoreOriginalSize:
     def __init__(self, output_size):
@@ -60,6 +43,37 @@ class RestoreOriginalSize:
         right = left + self.target_width
         result = image[0:int(self.target_height), int(left):int(right)]
 
+        return result
+
+
+class RandomRotate:
+    def __init__(self, degrees):
+        self.angle = random.randint(-degrees, degrees)
+
+    def __call__(self, image):
+        image = PIL.Image.fromarray(np.uint8(image))
+        result = ptf.rotate(image, self.angle)
+        result = np.array(result)
+        return result
+
+
+class CenterCrop:
+    def __call__(self, image):
+        height, width = image.shape[:2]
+        image = PIL.Image.fromarray(np.uint8(image))
+        center_crop = ptransforms.CenterCrop((int(height // 1.5), int(width // 1.5)))
+        result = center_crop(image)
+        result = np.array(result)
+        return result
+
+
+class RandomCrop:
+    def __call__(self, image):
+        height, width = image.shape[:2]
+        image = PIL.Image.fromarray(np.uint8(image))
+        random_crop = ptransforms.RandomCrop((int(height // 1.5), int(width // 1.5)))
+        result = random_crop(image)
+        result = np.array(result)
         return result
 
 

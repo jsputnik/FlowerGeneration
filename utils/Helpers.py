@@ -56,6 +56,7 @@ def decode_segmap(image_tensor, number_of_classes, label_colors=np.array([(0, 0,
 
 
 def predict(model, image):
+    model.eval()
     image_transform = transforms.Compose([Transforms.Resize((256, 128)), transforms.ToTensor()])
     image_tensor = image_transform(image)
     input_tensor = image_tensor.unsqueeze(0).to(Device.get_default_device())

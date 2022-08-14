@@ -1,26 +1,27 @@
 from torch.utils.data import Dataset
 import torch
 import os
+import numpy as np
 from scipy.io import loadmat
 import cv2
-
 from utils import Helpers
+import nn.transforms as Transforms
 
 
 class FlowerDataset(Dataset):
 
-    def __init__(self, images_root: str, trimaps_root: str, imageTransform, trimapTransform):
+    def __init__(self, images_root: str, trimaps_root: str, imageTransform, trimapTransform, sharedTransform):
         self.images_root = images_root
         self.trimaps_root = trimaps_root
         self.imageTransform = imageTransform
         self.trimapTransform = trimapTransform
+        self.sharedTransform = sharedTransform
         self.config_file = "imlist.mat"
         self.image_names, self.trimap_names = self.get_valid_images()
 
     # loads data and trimaps for 17flowers dataset, only the data that have corresponding trimaps
     def get_valid_images(self):
         trimap_indexes = loadmat(self.trimaps_root + self.config_file)  # to assign data to trimaps
-        # print("Trimaps type: ", type(trimap_indexes["imlist"]))  #uint16
         trimap_indexes = list(map(int, trimap_indexes["imlist"][0]))
         # trimap_indexes = [x - 1 for x in trimap_indexes]
         image_names = os.listdir(self.images_root)  # only difference is format jpg and png
@@ -30,13 +31,10 @@ class FlowerDataset(Dataset):
         valid_trimap_names = [self.find_by_id(os.listdir(self.trimaps_root), i) for i in trimap_indexes]
         return valid_image_names, valid_trimap_names
 
-    # move this to another class and make it check if valid there
     def find_by_id(self, names: [str], id: int):
         for name in names:
             if len(name) == 14 and name[0:6] == "image_" and int(name[6:10]) == id:
-                print("Found match for: ", name)
                 return name
-        print("no match")
         return ""
 
     def __len__(self):
@@ -48,6 +46,13 @@ class FlowerDataset(Dataset):
 
         image = cv2.imread(self.images_root + "/" + self.image_names[index])
         trimap = cv2.imread(self.trimaps_root + "/" + self.trimap_names[index])
-        image = self.imageTransform(image)
-        trimap = self.trimapTransform(trimap).long()
+        change_color = Transforms.ChangeColor(np.array([0, 0, 0]), np.array([128, 128, 128]))
+        trimap = change_color(trimap)
+        if self.sharedTransform is not None:
+            image = self.sharedTransform(image)
+            trimap = self.sharedTransform(trimap)
+        if self.imageTransform is not None:
+            image = self.imageTransform(image)
+        if self.trimapTransform is not None:
+            trimap = self.trimapTransform(trimap).long()
         return image, trimap
