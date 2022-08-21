@@ -6,6 +6,7 @@ from scipy.io import loadmat
 import cv2
 from utils import Helpers
 import nn.transforms as Transforms
+import utils.image_operations as imops
 
 
 class FlowerDataset(Dataset):
@@ -51,6 +52,11 @@ class FlowerDataset(Dataset):
         if self.sharedTransform is not None:
             image = self.sharedTransform(image)
             trimap = self.sharedTransform(trimap)
+        # imops.displayImage(image)
+        print("image name: ", self.image_names[index])
+        cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/general/general_dataset_examples/" + self.image_names[index], image)
+        cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/general/general_dataset_segmap_examples/" +
+                    self.trimap_names[index], trimap)
         if self.imageTransform is not None:
             image = self.imageTransform(image)
         if self.trimapTransform is not None:

@@ -53,14 +53,8 @@ def evaluate(model, validation_dataloader):
     return avg_accuracy
 
 
-def segment(image_path, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/models/95.38flower", number_of_classes=4):
-    model = smp.Unet(
-        encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-        # encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-        in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-        classes=number_of_classes,  # model output channels (number of classes in your dataset)
-    ).to(Device.get_default_device())
-    model.load_state_dict(torch.load(model_path))
+def segment(image_path, model, number_of_classes):
+    model.to(Device.get_default_device())
     test_image = cv2.imread(image_path)
     output = Helpers.predict(model, test_image)
     label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])

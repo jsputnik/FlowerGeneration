@@ -43,7 +43,8 @@ model = smp.MAnet(
 
 # manager = ImageManager("../datasets/17flowers/jpg", "../datasets/trimaps", "../datasets/trimaps/imlist.mat")
 # manager.load()
-# manager.set_image_dimensions()
+# # manager.set_image_dimensions()
+# print("Flowers: ", manager.count_flower_types())
 dataset = FlowerDataset("../datasets/17flowers/jpg/",
                         "../datasets/trimaps/",
                         transforms.Compose([transforms.ToTensor()]),
@@ -63,9 +64,9 @@ validation_dataset_size = len(dataset) - train_dataset_size - test_dataset_size
 torch.manual_seed(seed)  # to ensure creating same sets
 train_dataset, test_dataset, validation_dataset = torch.utils.data.random_split(
     dataset, [train_dataset_size, test_dataset_size, validation_dataset_size])
-print(train_dataset[0][1].shape)
-to_image_transform = Transforms.ToImage()
+# to_image_transform = Transforms.ToImage()
 # imops.displayImage(to_image_transform(test_dataset[0][1]))
+# imops.displayImage(train_dataset[0][0].numpy())
 print(f"train dataset length: {len(train_dataset)}")
 print(f"validation dataset length: {len(validation_dataset)}")
 print(f"test dataset length: {len(test_dataset)}")

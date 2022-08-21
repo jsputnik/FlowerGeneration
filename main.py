@@ -24,7 +24,8 @@ import tests as tests
 print("Start")
 # tests.test_center_image_modifiers()
 # seg.train_flower_centers()
-tests.test_center_segmentation()
+# tests.test_center_segmentation()
+tests.get_flower_part()
 sys.exit()
 
 # segmap = cv2.imread("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/segmented_testFlower.png")

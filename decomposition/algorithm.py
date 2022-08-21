@@ -138,7 +138,6 @@ def divide_petals(image, intersection_points, middle, contour, center_pixels):
 
 def fill_petal_contour(image, contour):
     # TODO: fix connecting line pixels in different petals overlapping
-    # TODO: drawcontours with thickness -1 doesn't always work as expected, eg image0009
     for pixel in contour:
         image[pixel[0]][pixel[1]] = np.array([255, 0, 0])
     # imops.displayImage(image)
@@ -155,7 +154,7 @@ def fill_petal_contour(image, contour):
                                            cv2.CHAIN_APPROX_NONE)
 
     cv2.drawContours(result_image, contours, 0, (255, 255, 255), thickness=-1)
-    imops.displayImage(result_image)
+    # imops.displayImage(result_image)
     return result_image
 
 
@@ -172,15 +171,15 @@ def fill_petals_with_color(image, petals):
 
 def decomposition_algorithm(image):
     center_mask = np.all(image == np.array([0, 128, 0]), axis=-1)
-    # print("Cindices: ", center_mask)
     raw_center_pixels = np.where(np.all(image == np.array([0, 128, 0]), axis=-1))
+    if np.size(raw_center_pixels) == 0:
+        return image, 0
     center_pixels = []
     # from y and x coords in 2 separate arrays to 1
     for index in range(len(raw_center_pixels[0])):
         y = raw_center_pixels[0][index]
         x = raw_center_pixels[1][index]
         center_pixels.append(np.array([y, x]))
-        # image[y][x] = np.array([128, 0, 0])
     # imops.displayImage(image)
     center_point = get_center_point(image)
     black_white_transform = transforms.Compose([Transforms.ChangeColor(np.array([0, 128, 128]), np.array([0, 0, 0])),
@@ -195,14 +194,11 @@ def decomposition_algorithm(image):
     thresholded_image = threshold_image(black_white_image)
     # imops.displayImagePair(image_gray, segmap)
     contours, hierarchy = cv2.findContours(thresholded_image, cv2.RETR_LIST,
-                                           cv2.CHAIN_APPROX_NONE)  # cv2.RETR_TREE cv2.CHAIN_APPROX_SIMPLE
+                                           cv2.CHAIN_APPROX_NONE)
     big_contours = get_big_contours(contours)
     cv2.drawContours(black_white_image, big_contours, 0, (0, 255, 0))
-    # black_white_image[center_point[0]][center_point[1]] = np.array([255, 0, 0])
     result_image, intersection_points = detect_intersection_points(black_white_image, center_point, big_contours, worm_length=21, min_distance=4.5)
     number_of_parts = len(intersection_points)
-    # print("intersection points: ", intersection_points)
-    # middle = np.array([130, 60]).astype(int)
     middle = np.array([center_point[1], center_point[0]]).astype(int)
     petals = divide_petals(result_image.copy(), intersection_points, middle, big_contours[0].squeeze(), center_pixels)
     result_image = fill_petals_with_color(result_image, petals)

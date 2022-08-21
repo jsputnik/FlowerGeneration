@@ -10,7 +10,7 @@ MAIN_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static
 UPLOAD_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/upload"
 SEGMENT_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/segment"
 DECOMPOSE_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/decompose"
-ALLOWED_EXTENSIONS = {"txt", "pdf", "png", "jpg", "jpeg"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 app = Flask(__name__)
 app.config["MAIN_FOLDER"] = MAIN_FOLDER
@@ -19,6 +19,7 @@ app.config["SEGMENT_FOLDER"] = SEGMENT_FOLDER
 app.config["DECOMPOSE_FOLDER"] = DECOMPOSE_FOLDER
 app.config["ORIGINAL_WIDTH"] = 0
 app.config["ORIGINAL_HEIGHT"] = 0
+app.config["ORIGINAL_FILENAME"] = ""
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -65,20 +66,18 @@ def upload_image(filename):
             # app.config["ORIGINAL_WIDTH"] = width
             # app.config["ORIGINAL_HEIGHT"] = height
             segmap = segment(filename)
-            filename = Helpers.remove_file_extension(filename) + ".png"
-            print("Filename no extension: ", filename)
-            cv2.imwrite(app.config["SEGMENT_FOLDER"] + "/" + filename, segmap)
+            app.config["ORIGINAL_FILENAME"] = filename
+            segment_filename = Helpers.remove_file_extension(filename) + ".png"
+            cv2.imwrite(app.config["SEGMENT_FOLDER"] + "/" +  segment_filename, segmap)
             return redirect(url_for("segment_view",
-                                    filename=filename))
+                                    filename=segment_filename))
     else:
-        print("GET upload image")
         return render_template("upload_image.html", uploaded_image=filename)
 
 
 @app.route("/segment/<filename>", methods=["GET", "POST"])
 def segment_view(filename):
     if request.method == "POST":
-        print("POST segment_image")
         if request.form["submit_button"] == "Upload":
             if "file" not in request.files:
                 print("No file part")
@@ -94,11 +93,13 @@ def segment_view(filename):
                 return redirect(url_for("upload_image",
                                         filename=filename))
         elif request.form["submit_button"] == "Decompose":
-            print("Decompose: ", filename)
-            decompose(filename)
+            try:
+                decompose(filename)
+            except Exception as e:
+                print(e)
+                return render_template("segment.html", segmented_image=filename)
             return redirect(url_for("decompose_view", filename=filename))
     else:
-        print("GET upload image")
         return render_template("segment.html", segmented_image=filename)
 
 
@@ -125,19 +126,16 @@ def decompose_view(filename):
 
 @app.route("/display/upload/<filename>")
 def display_uploaded_image(filename):
-    print("in display")
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
 @app.route("/display/segment/<filename>")
 def display_segment_image(filename):
-    print("in display segment")
     return send_from_directory(app.config["SEGMENT_FOLDER"], filename)
 
 
 @app.route("/display/decompose/<filename>")
 def display_decompose_image(filename):
-    print("in display decompose")
     return send_from_directory(app.config["DECOMPOSE_FOLDER"], filename)
 
 
@@ -154,10 +152,12 @@ def segment(filename):
 
 
 def decompose(filename):
-    print("decomposing: ", filename)
     segmap = cv2.imread(app.config["SEGMENT_FOLDER"] + "/" + filename)
     result, number_of_petals = dec.decomposition_algorithm(segmap)
-    original_filename = Helpers.remove_file_extension(filename) + ".jpg"
+    if number_of_petals == 0:
+        raise Exception("Invalid segmentation, can't proceed with decomposition")
+    # if numberof petals == 0 throw error
+    original_filename = app.config["ORIGINAL_FILENAME"]
     original = cv2.imread(app.config["UPLOAD_FOLDER"] + "/" + original_filename)
     height, width = original.shape[:2]
     to_original_size = flowertransforms.RestoreOriginalSize((width, height))

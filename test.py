@@ -17,12 +17,14 @@ model = smp.MAnet(
 
 model_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/models/94.88Manet"
 # image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/browneyedsusan.jpg"
-image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/17flower_dataset/17flowers/jpg/image_0008.jpg"
+image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/testFlower.png"
+# image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/rose.jpg"
+# image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/17flower_dataset/17flowers/jpg/image_1265.jpg"
 
 model.load_state_dict(torch.load(model_path))
 image = cv2.imread(image_path)
 output = Helpers.predict(model, image)
 # rgb = output.squeeze().detach().numpy().transpose((1, 2, 0))
 rgb = Helpers.decode_segmap(output, number_of_classes)
-imops.displayImagePair(image, rgb)
-# cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/testFlowerAllDeeplab.png", rgb)
+# imops.displayImagePair(image, rgb)
+cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/testFlowerNoneManet.png", rgb)

@@ -67,6 +67,18 @@ class CenterCrop:
         return result
 
 
+class ColorJitter:
+    def __init__(self, brightness):
+        self.brightness = brightness
+
+    def __call__(self, image):
+        image = PIL.Image.fromarray(np.uint8(image))
+        color_jitter = ptransforms.ColorJitter(self.brightness)
+        result = color_jitter(image)
+        result = np.array(result)
+        return result
+
+
 class RandomCrop:
     def __call__(self, image):
         height, width = image.shape[:2]
