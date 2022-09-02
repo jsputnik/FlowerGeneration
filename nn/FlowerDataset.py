@@ -65,8 +65,8 @@ class FlowerDataset(Dataset):
             # image = self.imageTransform(image)
         if self.trimapTransform is not None:
             trimap = self.trimapTransform(trimap)
-        # tensor_transform = ptransforms.ToTensor()
-        # image = tensor_transform(image)
-        # mask_transform = ptransforms.Compose([Transforms.ToMask(), ptransforms.ToTensor()])
-        # trimap = mask_transform(trimap).long()
+        tensor_transform = ptransforms.ToTensor()
+        image = tensor_transform(image)
+        mask_transform = ptransforms.Compose([Transforms.ToMask(), ptransforms.ToTensor()])
+        trimap = mask_transform(trimap).long()
         return image, trimap

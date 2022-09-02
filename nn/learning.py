@@ -7,6 +7,7 @@ import torch.nn as nn
 import nn.transforms as Transforms
 from torchvision.transforms import transforms
 import segmentation_models_pytorch as smp
+import utils.image_operations as imops
 
 
 def train(model, epochs, learning_rate, train_dataloader, validation_dataloader, loss_fun=nn.CrossEntropyLoss(),
@@ -37,7 +38,6 @@ def evaluate(model, validation_dataloader):
     label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
     with torch.no_grad():
         for batch in validation_dataloader:
-            # print("Evaluating batch")
             inputs, trimaps = batch[0].to(Device.get_default_device()), batch[1]  # both are tensors
             outputs = model(inputs)
             for output, trimap in zip(outputs, trimaps):
@@ -46,11 +46,31 @@ def evaluate(model, validation_dataloader):
                 segmap_mask = transform(segmap_image).numpy()
                 correctly_assigned_pixels = np.sum(segmap_mask == trimap.numpy())
                 accuracy: float = float(correctly_assigned_pixels) / segmap_mask.size
-                # print(f"accuracy: {accuracy}")
+                print(f"accuracy: {accuracy}")
                 avg_accuracy += accuracy
-                # image.displayImage(segmap_image)
+                imops.displayImage(segmap_image)
     avg_accuracy = avg_accuracy / len(validation_dataloader.dataset) * 100
     return avg_accuracy
+
+
+# def evaluate(model, validation_dataloader):
+#     model.eval()  # turn off regularisation
+#     print("Evaluating...")
+#     avg_accuracy = 0
+#     label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
+#     with torch.no_grad():
+#         for batch in validation_dataloader:
+#             inputs, trimaps = batch[0].to(Device.get_default_device()), batch[1]  # both are tensors
+#             outputs = model(inputs)
+#             for output, trimap in zip(outputs, trimaps):
+#                 correctly_assigned_pixels = np.sum(output == trimap.numpy())
+#                 accuracy: float = float(correctly_assigned_pixels) / output.cpu().numpy().size
+#                 print(f"accuracy: {accuracy}")
+#                 avg_accuracy += accuracy
+#                 segmap_image = Helpers.decode_segmap(output, label_colors)
+#                 imops.displayImage(segmap_image)
+#     avg_accuracy = avg_accuracy / len(validation_dataloader.dataset) * 100
+#     return avg_accuracy
 
 
 def segment(image_path, model, number_of_classes):
