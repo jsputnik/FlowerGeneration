@@ -6,6 +6,7 @@ from scipy.io import loadmat
 import cv2
 from utils import Helpers
 import nn.transforms as Transforms
+from torchvision.transforms import transforms as ptransforms
 import utils.image_operations as imops
 
 
@@ -50,15 +51,22 @@ class FlowerDataset(Dataset):
         change_color = Transforms.ChangeColor(np.array([0, 0, 0]), np.array([128, 128, 128]))
         trimap = change_color(trimap)
         if self.sharedTransform is not None:
-            image = self.sharedTransform(image)
-            trimap = self.sharedTransform(trimap)
-        # imops.displayImage(image)
-        print("image name: ", self.image_names[index])
-        cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/general/general_dataset_examples/" + self.image_names[index], image)
-        cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/general/general_dataset_segmap_examples/" +
-                    self.trimap_names[index], trimap)
+            transformed = self.sharedTransform(image=image, mask=trimap)
+            image = transformed["image"]
+            trimap = transformed["mask"]
+            # image = self.sharedTransform(image)
+            # trimap = self.sharedTransform(trimap)
+        resize_transform = Transforms.Resize((256, 128))
+        image = resize_transform(image)
+        trimap = resize_transform(trimap)
         if self.imageTransform is not None:
-            image = self.imageTransform(image)
+            image = self.imageTransform(image=image)
+            image = image["image"]
+            # image = self.imageTransform(image)
         if self.trimapTransform is not None:
-            trimap = self.trimapTransform(trimap).long()
+            trimap = self.trimapTransform(trimap)
+        # tensor_transform = ptransforms.ToTensor()
+        # image = tensor_transform(image)
+        # mask_transform = ptransforms.Compose([Transforms.ToMask(), ptransforms.ToTensor()])
+        # trimap = mask_transform(trimap).long()
         return image, trimap

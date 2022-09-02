@@ -11,5 +11,8 @@
 </form>
 
 <img src="{{ url_for('display_decompose_image', filename=decomposed_image) }}">
+<form method="post" enctype="multipart/form-data">
+    <input type="submit" name="submit_button" value="Download">
+</form>
 </body>
 </html>

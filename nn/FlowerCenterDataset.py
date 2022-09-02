@@ -2,6 +2,8 @@ from torch.utils.data import Dataset
 import torch
 import os
 import cv2
+from torchvision.transforms import transforms as ptransforms
+import nn.transforms as Transforms
 
 
 class FlowerCenterDataset(Dataset):
@@ -27,10 +29,18 @@ class FlowerCenterDataset(Dataset):
         # image = self.image_transform(image)
         # trimap = self.trimap_transform(trimap).long()
         if self.shared_transform is not None:
-            image = self.shared_transform(image)
-            trimap = self.shared_transform(trimap)
+            transformed = self.shared_transform(image=image, mask=trimap)
+            image = transformed["image"]
+            trimap = transformed["mask"]
+            # image = self.shared_transform(image)
+            # trimap = self.shared_transform(trimap)
         if self.image_transform is not None:
-            image = self.image_transform(image)
+            image = self.image_transform(image=image)
+            image = image["image"]
         if self.trimap_transform is not None:
-            trimap = self.trimap_transform(trimap).long()
+            trimap = self.trimap_transform(trimap)
+        tensor_transform = ptransforms.ToTensor()
+        image = tensor_transform(image)
+        mask_transform = ptransforms.Compose([Transforms.ToCenterMask(), ptransforms.ToTensor()])
+        trimap = mask_transform(trimap).long()
         return image, trimap

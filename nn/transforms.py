@@ -139,25 +139,6 @@ class ToImage:
         return image
 
 
-# class ToOriginalSize:
-#     def __init__(self, width, height):
-#         self.target_width = width
-#         self.target_height = height
-#
-#     def __call__(self, image):
-#         height, width = image.shape[:2]
-#         ratio = height / width
-#         if height > self.target_height:
-#             height = self.target_height
-#             width = int(self.target_height // ratio)
-#             image = cv2.resize(image, (width, height))
-#         result = np.zeros((self.target_height, self.target_width, 3), np.uint8)
-#         start_x = (self.target_width - width) // 2
-#         start_y = (self.target_height - height) // 2
-#         result[start_y:start_y + height, start_x:start_x + width] = image
-#         return result
-
-
 class ToTensor(object):
     def __call__(self, image):
         return image.transpose((2, 0, 1))

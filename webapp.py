@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 import utils.Helpers as Helpers
 import segmentation.segmentation as seg
 import nn.transforms as flowertransforms
+import utils.image_operations as imops
 
 MAIN_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static"
 UPLOAD_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/upload"
@@ -120,6 +121,8 @@ def decompose_view(filename):
                 file.save(full_filename)
                 return redirect(url_for("upload_image",
                                         filename=filename))
+        elif request.form["submit_button"] == "Download":
+            return download_file(filename)
     else:
         return render_template("decompose_view.html", decomposed_image=filename)
 
@@ -137,6 +140,12 @@ def display_segment_image(filename):
 @app.route("/display/decompose/<filename>")
 def display_decompose_image(filename):
     return send_from_directory(app.config["DECOMPOSE_FOLDER"], filename)
+
+
+@app.route("/download/<filename>")
+def download_file(filename):
+    print("Full path: " + app.config["DECOMPOSE_FOLDER"] + " " + filename)
+    return send_from_directory(app.config["DECOMPOSE_FOLDER"], filename, as_attachment=True)
 
 
 def shutdown_server():

@@ -11,12 +11,12 @@ from utils.Color import Color
 from skimage.measure import regionprops
 
 
-def decode_segmap(image_tensor, number_of_classes, label_colors=np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])):
+def decode_segmap(image_tensor, label_colors):
     image = torch.argmax(image_tensor.squeeze(), dim=0).detach().cpu().numpy()
     red = np.zeros_like(image).astype(np.uint8)
     green = np.zeros_like(image).astype(np.uint8)
     blue = np.zeros_like(image).astype(np.uint8)
-    for label in range(0, number_of_classes):
+    for label in range(0, len(label_colors)):
         idx = image == label  # all indexes of pixels, where class corresponds to given pixel
         red[idx] = label_colors[label, 0]
         green[idx] = label_colors[label, 1]
@@ -61,9 +61,12 @@ def separate_flower_parts(image, mask, petal_number):
     y = 0
     max_part_height = 0
     for index in range(petal_number):
-        part_image = separate_single_part(image, mask, current_color)
-        y, x, max_part_height = update_result(result_image, part_image, y, x, max_part_height)
-        current_color -= Color.color_difference
+        try:
+            part_image = separate_single_part(image, mask, current_color)
+            y, x, max_part_height = update_result(result_image, part_image, y, x, max_part_height)
+            current_color -= Color.color_difference
+        except Exception:
+            pass
     # now center
     part_image = separate_single_part(image, mask, Color.center_color)
     y, _, max_part_height = update_result(result_image, part_image, y, x, max_part_height)
@@ -121,7 +124,6 @@ def create_center_segmaps(masks, originals):
 
         black_white_image = black_white_transform(segmap)
         result = apply_boolean_mask(black_white_image, boolean_mask, new_color=np.array([128, 128, 128]))
-        imops.displayImage(result)
         results.append(result)
     return results
 
@@ -142,3 +144,4 @@ def save_images(images, filenames):
     save_folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/datasets/centerflowers_modified/segmaps"
     for index in range(len(images)):
         cv2.imwrite(os.path.join(save_folder_path, filenames[index]), images[index])
+

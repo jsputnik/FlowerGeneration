@@ -33,15 +33,15 @@ def train(model, epochs, learning_rate, train_dataloader, validation_dataloader,
 def evaluate(model, validation_dataloader):
     model.eval()  # turn off regularisation
     print("Evaluating...")
-    number_of_classes = 4
     avg_accuracy = 0
+    label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
     with torch.no_grad():
         for batch in validation_dataloader:
             # print("Evaluating batch")
             inputs, trimaps = batch[0].to(Device.get_default_device()), batch[1]  # both are tensors
             outputs = model(inputs)
             for output, trimap in zip(outputs, trimaps):
-                segmap_image = Helpers.decode_segmap(output, number_of_classes)
+                segmap_image = Helpers.decode_segmap(output, label_colors)
                 transform = transforms.Compose([Transforms.ToMask(), transforms.ToTensor()])
                 segmap_mask = transform(segmap_image).numpy()
                 correctly_assigned_pixels = np.sum(segmap_mask == trimap.numpy())
@@ -57,10 +57,11 @@ def segment(image_path, model, number_of_classes):
     model.to(Device.get_default_device())
     test_image = cv2.imread(image_path)
     output = Helpers.predict(model, test_image)
-    label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
+    label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 0)])
+    # label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
     if number_of_classes == 3:
         label_colors = np.array([(0, 0, 0), (255, 255, 255), (128, 128, 128)])
-    segmap = Helpers.decode_segmap(output, number_of_classes, label_colors=label_colors)
+    segmap = Helpers.decode_segmap(output, label_colors=label_colors)
     return segmap
 
 
@@ -76,5 +77,5 @@ def segment_image(image, model_path="C:/Users/iwo/Documents/PW/PrInz/FlowerGen/F
     label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
     if number_of_classes == 3:
         label_colors = np.array([(0, 0, 0), (255, 255, 255), (128, 128, 128)])
-    segmap = Helpers.decode_segmap(output, number_of_classes, label_colors=label_colors)
+    segmap = Helpers.decode_segmap(output, label_colors=label_colors)
     return segmap

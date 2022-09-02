@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" type= "text/css" href="{{ url_for('static', filename='styles/general.css') }}">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
 <form method="post" enctype="multipart/form-data">
@@ -12,7 +14,8 @@
 
 <img src="{{ url_for('display_uploaded_image', filename=uploaded_image) }}">
 <form method="post" enctype="multipart/form-data">
-    <input type="submit" name="submit_button" value="Segment">
+    <input type="submit" name="submit_button" value="Segment" onclick="$('.loader').show();">
 </form>
+<div class="loader"></div>
 </body>
 </html>

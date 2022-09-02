@@ -4,8 +4,6 @@ import numpy as np
 
 def displayTensor(tensor):
     image = np.copy(tensor.numpy().transpose((1, 2, 0))).astype(np.uint8)
-    print("displayTensor numpy shape: ", image.shape)
-    print("displayTensor.shape: ", tensor.shape)
     cv2.imshow("Image", image)
     # cv2.imshow("Image", tensor.numpy.transpose((1, 2, 0)))
     cv2.waitKey(0)
