@@ -65,11 +65,14 @@ def separate_flower_parts(image, mask, petal_number):
             part_image = separate_single_part(image, mask, current_color)
             y, x, max_part_height = update_result(result_image, part_image, y, x, max_part_height)
             current_color -= Color.color_difference
-        except Exception:
-            pass
+        except Exception as e:
+            current_color -= Color.color_difference
     # now center
-    part_image = separate_single_part(image, mask, Color.center_color)
-    y, _, max_part_height = update_result(result_image, part_image, y, x, max_part_height)
+    try:
+        part_image = separate_single_part(image, mask, Color.center_color)
+        y, _, max_part_height = update_result(result_image, part_image, y, x, max_part_height)
+    except Exception as e:
+        pass
     cropped_result_height = y + max_part_height
     if y + max_part_height == 0:
         cropped_result_height = result_image_height

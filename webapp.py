@@ -163,15 +163,15 @@ def segment(filename):
 def decompose(filename):
     segmap = cv2.imread(app.config["SEGMENT_FOLDER"] + "/" + filename)
     result, number_of_petals = dec.decomposition_algorithm(segmap)
-    if number_of_petals == 0:
-        raise Exception("Invalid segmentation, can't proceed with decomposition")
-    # if numberof petals == 0 throw error
+    # if number_of_petals == 0:
+    #     raise Exception("Invalid segmentation, can't proceed with decomposition")
     original_filename = app.config["ORIGINAL_FILENAME"]
     original = cv2.imread(app.config["UPLOAD_FOLDER"] + "/" + original_filename)
     height, width = original.shape[:2]
     to_original_size = flowertransforms.RestoreOriginalSize((width, height))
     result = to_original_size(result)
     result = Helpers.separate_flower_parts(original, result, number_of_petals)
+    cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-results/" + filename, result)
     cv2.imwrite(app.config["DECOMPOSE_FOLDER"] + "/" + filename, result)
 
 

@@ -107,14 +107,32 @@ def test_center_image_modifiers():
 
 
 def test_center_segmentation():
-    image_names = ["image_0004.jpg", "image_0325.jpg", "image_0730.jpg", "image_0980.jpg", "image_1238.jpg", "image_1308.jpg", "testFlower.png", "browneyedsusan.jpg"]
-    folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/center/data/"
+    # image_names = ["image_0004.jpg", "image_0325.jpg", "image_0730.jpg", "image_0980.jpg", "image_1238.jpg", "image_1308.jpg", "testFlower.png", "browneyedsusan.jpg"]
+    image_names = ["image_00012.jpg", "image_00640.jpg", "image_08176.jpg"]
+    folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-decomposition/data/"
     # image_names = ["image_0325.jpg"]
     # folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/datasets/17flowers/jpg/"
     for name in image_names:
         segmap = seg.segment_flower_parts(folder_path + name)
         # imops.displayImage(segmap)
-        cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/center/results_architectures/Manet" + name, segmap)
+        cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-decomposition/DeeplabRotate" + name, segmap)
+
+
+def test_decomposition():
+    # image_names = ["image_0004.jpg", "image_0325.jpg", "image_0730.jpg", "image_0980.jpg", "image_1238.jpg", "image_1308.jpg", "testFlower.png", "browneyedsusan.jpg"]
+    image_names = ["image_00012.png", "image_0561.png", "image_00640.png"]
+    folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-decomposition/segmap_data/"
+    # folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/datasets/17flowers/jpg/"
+    for name in image_names:
+        image = cv2.imread(folder_path + name)
+        print("For image: ", name)
+        for wl in range(13, 33, 4):
+            for md in np.arange(3.5, 6, 0.5):
+                dec.decomposition_algorithm(image.copy(), worm_length=wl, min_distance=md)
+
+        print("")
+        # imops.displayImage(segmap)
+        # cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-decomposition/DeeplabRotate" + name, segmap)
 
 
 def get_flower_part():
