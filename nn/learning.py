@@ -54,8 +54,8 @@ def segment(image_path, model, number_of_classes):
     model.to(Device.get_default_device())
     test_image = cv2.imread(image_path)
     output = Helpers.predict(model, test_image)
-    # label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 0)])
-    label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
+    label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 0)])
+    # label_colors = np.array([(0, 0, 0), (128, 128, 0), (128, 0, 0), (128, 128, 128)])
     if number_of_classes == 3:
         label_colors = np.array([(0, 0, 0), (255, 255, 255), (128, 128, 128)])
     segmap = Helpers.decode_segmap(output, label_colors=label_colors)

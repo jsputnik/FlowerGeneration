@@ -21,9 +21,6 @@ import albumentations as alb
 
 
 def test_image_modifiers():
-    # manager = ImageManager("../datasets/17flowers/jpg", "../datasets/trimaps", "../datasets/trimaps/imlist.mat")
-    # manager.load()
-    # manager.set_image_dimensions()
     seed = 42
     train_dataset_ratio = 0.8
     test_dataset_ratio = 0.1
@@ -49,16 +46,10 @@ def test_alb_image_modifiers():
     test_dataset_ratio = 0.1
 
     # image_transforms = alb.Compose([
-    #     # alb.CenterCrop(width=256, height=128),
-    #     # alb.HorizontalFlip(p=0.5),
-    #     # alb.RandomBrightnessContrast(p=0.2),
     #     alb.Emboss()
     # ])
 
     shared_transforms = alb.Compose([
-        # alb.CenterCrop(width=256, height=128),
-        # alb.HorizontalFlip(p=0.5),
-        # alb.RandomBrightnessContrast(p=0.2),
         alb.Rotate(limit=180)
     ], additional_targets={"image": "image", "mask": "mask"})
     dataset = FlowerDataset("../datasets/17flowers/jpg/",
@@ -79,16 +70,10 @@ def test_alb_image_modifiers():
 
 def test_center_image_modifiers():
     image_transforms = alb.Compose([
-        # alb.CenterCrop(width=256, height=128),
-        # alb.HorizontalFlip(p=0.5),
-        # alb.RandomBrightnessContrast(p=0.2),
         alb.ColorJitter()
     ])
 
     shared_transforms = alb.Compose([
-        # alb.CenterCrop(width=256, height=128),
-        # alb.HorizontalFlip(p=0.5),
-        # alb.RandomBrightnessContrast(p=0.2),
         alb.Rotate(limit=180)
     ], additional_targets={"image": "image", "mask": "mask"})
     train_dataset = FlowerCenterDataset("../datasets/centerflowers/originals/",
@@ -96,49 +81,30 @@ def test_center_image_modifiers():
                                         None,
                                         None,
                                         shared_transforms)
-    #
-    # train_dataset = FlowerCenterDataset("../datasets/centerflowers/originals/",
-    #                                     "../datasets/centerflowers/segmaps/",
-    #                                     Transforms.ColorJitter(0.5),
-    #                                     None,
-    #                                     ptransforms.Compose([Transforms.CenterCrop(), Transforms.Resize((256, 128))]))
     image, mask = train_dataset[3]
     imops.displayImagePair(image, mask)
 
 
 def test_center_segmentation():
-    # image_names = ["image_0004.jpg", "image_0325.jpg", "image_0730.jpg", "image_0980.jpg", "image_1238.jpg", "image_1308.jpg", "testFlower.png", "browneyedsusan.jpg"]
     image_names = ["image_00012.jpg", "image_00640.jpg", "image_08176.jpg"]
-    folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-decomposition/data/"
-    # image_names = ["image_0325.jpg"]
-    # folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/datasets/17flowers/jpg/"
+    folder_path = "../thesis assets/4-decomposition/data/"
     for name in image_names:
         segmap = seg.segment_flower_parts(folder_path + name)
-        # imops.displayImage(segmap)
-        cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-decomposition/DeeplabRotate" + name, segmap)
 
 
 def test_decomposition():
-    # image_names = ["image_0004.jpg", "image_0325.jpg", "image_0730.jpg", "image_0980.jpg", "image_1238.jpg", "image_1308.jpg", "testFlower.png", "browneyedsusan.jpg"]
     image_names = ["image_00012.png", "image_0561.png", "image_00640.png"]
-    folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-decomposition/segmap_data/"
-    # folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/datasets/17flowers/jpg/"
+    folder_path = "../thesis assets/4-decomposition/segmap_data/"
     for name in image_names:
         image = cv2.imread(folder_path + name)
-        print("For image: ", name)
         for wl in range(13, 33, 4):
             for md in np.arange(3.5, 6, 0.5):
                 dec.decomposition_algorithm(image.copy(), worm_length=wl, min_distance=md)
 
-        print("")
-        # imops.displayImage(segmap)
-        # cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-decomposition/DeeplabRotate" + name, segmap)
-
 
 def get_flower_part():
-    original_image_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/testFlower.png"
+    original_image_path = "../testFlower.png"
     original_image = cv2.imread(original_image_path)
-    # imops.displayImage(new_image)
     image_transform = Transforms.Resize((256, 128))
     resized_image = image_transform(original_image)
     general_model = smp.Unet(
@@ -152,29 +118,8 @@ def get_flower_part():
     segmap = learning.segment(original_image_path,
                               model=general_model,
                               number_of_classes=4)
-    print((segmap == np.array([128, 128, 128])).all(axis=-1).sum())
-    # imops.displayImage(segmap)
-    # mask = np.all(segmap != np.array([128, 128, 128]), axis=-1)
     mask = np.all(segmap == np.array([0, 128, 128]), axis=-1)
     result = Helpers.apply_boolean_mask(resized_image, mask)
-    # mask2 = np.all(segmap == np.array([128, 128, 128]), axis=- 1)
-    # result = Helpers.apply_boolean_mask(result, mask2)
-    # imops.displayImagePair(original_image, result)
-    # cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/general/masked_results/grayyestestFlower.png", result)
-    sys.exit()
-
-
-def list_images_in_dataset(dataset):
-    array = []
-    for index in dataset.indices:
-        _, _, image_name = dataset.dataset[index]
-        array.append(image_name)
-    array.sort()
-    # print("Array: ", array)
-    # for elem in array:
-        # print(elem)
-    print("array len: ", len(array))
-    return array
 
 
 def count_flower_types(image_names):

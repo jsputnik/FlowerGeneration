@@ -4,11 +4,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from torchvision.transforms import transforms
-
-import tests
-from utils.ImageManager import ImageManager
 from nn.FlowerDataset import FlowerDataset
-import nn.transforms as Transforms
 import nn.learning as Learning
 import utils.Device as Device
 import segmentation_models_pytorch as smp
@@ -54,11 +50,6 @@ torch.manual_seed(seed)  # to ensure creating same sets are created
 train_dataset, test_dataset, validation_dataset = torch.utils.data.random_split(
     dataset, [train_dataset_size, test_dataset_size, validation_dataset_size])
 
-# tests.list_images_in_dataset(test_dataset)
-# print("images: ", train_dataset.dataset[train_dataset.indices].sort())
-# to_image_transform = Transforms.ToImage()
-# imops.displayImage(to_image_transform(test_dataset[0][1]))
-# imops.displayImage(train_dataset[0][0].numpy())
 print(f"train dataset length: {len(train_dataset)}")
 print(f"validation dataset length: {len(validation_dataset)}")
 print(f"test dataset length: {len(test_dataset)}")
@@ -67,5 +58,5 @@ test_dataloader = DataLoader(test_dataset, batch_size)
 validation_dataloader = DataLoader(validation_dataset, batch_size)
 Learning.train(model, epochs, learning_rate, train_dataloader, validation_dataloader)
 avg_accuracy = Learning.evaluate(model, test_dataloader)
-print("Average accuraccy: ", avg_accuracy)
+print("Average accuracy: ", avg_accuracy)
 # torch.save(model.state_dict(), model_path + "{:.2f}".format(avg_accuracy) + "UnetRotate")

@@ -5,12 +5,11 @@ from werkzeug.utils import secure_filename
 import utils.Helpers as Helpers
 import segmentation.segmentation as seg
 import nn.transforms as flowertransforms
-import utils.image_operations as imops
 
-MAIN_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static"
-UPLOAD_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/upload"
-SEGMENT_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/segment"
-DECOMPOSE_FOLDER = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/decompose"
+MAIN_FOLDER = "./static"
+UPLOAD_FOLDER = "./static/upload"
+SEGMENT_FOLDER = "./static/segment"
+DECOMPOSE_FOLDER = "./static/decompose"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 app = Flask(__name__)
@@ -28,11 +27,9 @@ def index():
     if request.method == "POST":
         if request.form["upload_button"] == "Upload":
             if "file" not in request.files:
-                print("No file part")
                 return redirect(request.url)
             file = request.files["file"]
             if file.filename == "":
-                print("File not selected")
                 return redirect(request.url)
             if file:
                 filename = secure_filename(file.filename)
@@ -49,23 +46,17 @@ def upload_image(filename):
     if request.method == "POST":
         if request.form["submit_button"] == "Upload":
             if "file" not in request.files:
-                print("No file part")
                 return redirect(request.url)
             file = request.files["file"]
             if file.filename == "":
-                print("File not selected")
                 return redirect(request.url)
             if file:
                 filename = secure_filename(file.filename)
-                full_filename = app.config["UPLOAD_FOLDER"] + "/" + filename  # os.path.join(app.config["UPLOAD_FOLDER"], filename)
+                full_filename = app.config["UPLOAD_FOLDER"] + "/" + filename
                 file.save(full_filename)
                 return redirect(url_for("upload_image",
                                         filename=filename))
         elif request.form["submit_button"] == "Segment":
-            # original_image = cv2.imread(app.config["UPLOAD_FOLDER"] + "/" + filename)
-            # height, width = original_image.shape[:2]
-            # app.config["ORIGINAL_WIDTH"] = width
-            # app.config["ORIGINAL_HEIGHT"] = height
             segmap = segment(filename)
             app.config["ORIGINAL_FILENAME"] = filename
             segment_filename = Helpers.remove_file_extension(filename) + ".png"
@@ -81,15 +72,13 @@ def segment_view(filename):
     if request.method == "POST":
         if request.form["submit_button"] == "Upload":
             if "file" not in request.files:
-                print("No file part")
                 return redirect(request.url)
             file = request.files["file"]
             if file.filename == "":
-                print("File not selected")
                 return redirect(request.url)
             if file:
                 filename = secure_filename(file.filename)
-                full_filename = app.config["UPLOAD_FOLDER"] + "/" + filename  # os.path.join(app.config["UPLOAD_FOLDER"], filename)
+                full_filename = app.config["UPLOAD_FOLDER"] + "/" + filename
                 file.save(full_filename)
                 return redirect(url_for("upload_image",
                                         filename=filename))
@@ -109,11 +98,9 @@ def decompose_view(filename):
     if request.method == "POST":
         if request.form["submit_button"] == "Upload":
             if "file" not in request.files:
-                print("No file part")
                 return redirect(request.url)
             file = request.files["file"]
             if file.filename == "":
-                print("File not selected")
                 return redirect(request.url)
             if file:
                 filename = secure_filename(file.filename)
@@ -144,7 +131,6 @@ def display_decompose_image(filename):
 
 @app.route("/download/<filename>")
 def download_file(filename):
-    print("Full path: " + app.config["DECOMPOSE_FOLDER"] + " " + filename)
     return send_from_directory(app.config["DECOMPOSE_FOLDER"], filename, as_attachment=True)
 
 
@@ -163,15 +149,12 @@ def segment(filename):
 def decompose(filename):
     segmap = cv2.imread(app.config["SEGMENT_FOLDER"] + "/" + filename)
     result, number_of_petals = dec.decomposition_algorithm(segmap)
-    # if number_of_petals == 0:
-    #     raise Exception("Invalid segmentation, can't proceed with decomposition")
     original_filename = app.config["ORIGINAL_FILENAME"]
     original = cv2.imread(app.config["UPLOAD_FOLDER"] + "/" + original_filename)
     height, width = original.shape[:2]
     to_original_size = flowertransforms.RestoreOriginalSize((width, height))
     result = to_original_size(result)
     result = Helpers.separate_flower_parts(original, result, number_of_petals)
-    cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-results/" + filename, result)
     cv2.imwrite(app.config["DECOMPOSE_FOLDER"] + "/" + filename, result)
 
 

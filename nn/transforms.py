@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-import torch
 from torchvision.transforms import transforms as ptransforms
 import torchvision.transforms.functional as ptf
 import PIL
@@ -79,16 +78,6 @@ class ColorJitter:
         return result
 
 
-class RandomCrop:
-    def __call__(self, image):
-        height, width = image.shape[:2]
-        image = PIL.Image.fromarray(np.uint8(image))
-        random_crop = ptransforms.RandomCrop((int(height // 1.5), int(width // 1.5)))
-        result = random_crop(image)
-        result = np.array(result)
-        return result
-
-
 class ChangeColor:
     def __init__(self, old_color, new_color):
         self.old_color = old_color
@@ -122,26 +111,16 @@ class ToImage:
         beige = np.array([1])
         red = np.array([2])
         gray = np.array([3])
-        # black = 0
-        # beige = 1
-        # red = 2
-        # gray = 3
         mask = mask.cpu().numpy()
         mask = mask.transpose((1, 2, 0))
         height, width = mask.shape[:2]
 
-        # image = np.zeros((mask.shape[:2]), dtype=np.uint8)
         image = np.zeros((height, width, 3), dtype=np.uint8)
         image[(mask == black).all(axis=2)] = np.array([0, 0, 0])
         image[(mask == beige).all(axis=2)] = np.array([(0, 128, 128)])
         image[(mask == red).all(axis=2)] = np.array([0, 0, 128])
         image[(mask == gray).all(axis=2)] = np.array([(128, 128, 128)])
         return image
-
-
-class ToTensor(object):
-    def __call__(self, image):
-        return image.transpose((2, 0, 1))
 
 
 class ToCenterMask:

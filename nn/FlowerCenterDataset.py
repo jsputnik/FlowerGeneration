@@ -26,14 +26,10 @@ class FlowerCenterDataset(Dataset):
 
         image = cv2.imread(self.images_root + "/" + self.image_names[index])
         trimap = cv2.imread(self.trimaps_root + "/" + self.trimap_names[index])
-        # image = self.image_transform(image)
-        # trimap = self.trimap_transform(trimap).long()
         if self.shared_transform is not None:
             transformed = self.shared_transform(image=image, mask=trimap)
             image = transformed["image"]
             trimap = transformed["mask"]
-            # image = self.shared_transform(image)
-            # trimap = self.shared_transform(trimap)
         if self.image_transform is not None:
             image = self.image_transform(image=image)
             image = image["image"]

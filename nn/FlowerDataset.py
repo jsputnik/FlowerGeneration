@@ -4,7 +4,6 @@ import os
 import numpy as np
 from scipy.io import loadmat
 import cv2
-from utils import Helpers
 import nn.transforms as Transforms
 from torchvision.transforms import transforms as ptransforms
 import utils.image_operations as imops
@@ -25,11 +24,10 @@ class FlowerDataset(Dataset):
     def get_valid_images(self):
         trimap_indexes = loadmat(self.trimaps_root + self.config_file)  # to assign data to trimaps
         trimap_indexes = list(map(int, trimap_indexes["imlist"][0]))
-        # trimap_indexes = [x - 1 for x in trimap_indexes]
         image_names = os.listdir(self.images_root)  # only difference is format jpg and png
         del image_names[:2]
         valid_image_names = [self.find_by_id(os.listdir(self.images_root), i) for i in trimap_indexes]
-        # valid_image_names = [image_names[i] for i in trimap_indexes]
+
         valid_trimap_names = [self.find_by_id(os.listdir(self.trimaps_root), i) for i in trimap_indexes]
         return valid_image_names, valid_trimap_names
 
@@ -54,15 +52,12 @@ class FlowerDataset(Dataset):
             transformed = self.sharedTransform(image=image, mask=trimap)
             image = transformed["image"]
             trimap = transformed["mask"]
-            # image = self.sharedTransform(image)
-            # trimap = self.sharedTransform(trimap)
         resize_transform = Transforms.Resize((256, 128))
         image = resize_transform(image)
         trimap = resize_transform(trimap)
         if self.imageTransform is not None:
             image = self.imageTransform(image=image)
             image = image["image"]
-            # image = self.imageTransform(image)
         if self.trimapTransform is not None:
             trimap = self.trimapTransform(trimap)
         tensor_transform = ptransforms.ToTensor()

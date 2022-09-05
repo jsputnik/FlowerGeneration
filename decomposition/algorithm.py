@@ -205,7 +205,6 @@ def decomposition_algorithm(image, worm_length=21, min_distance=4.5):
     number_of_petals = len(petals)
     result_image = fill_petals_with_color(result_image, petals)
     result_image = Helpers.apply_boolean_mask(result_image, center_mask, new_color=Color.center_color)
-    # cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-results/dec_image_.png", result_image)
     return result_image, number_of_petals
 
 

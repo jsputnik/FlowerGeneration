@@ -26,18 +26,12 @@ def train_flower_centers():
         classes=3,  # model output chanznels (number of classes in your dataset)
     ).to(Device.get_default_device())
 
-    # train_dataset = FlowerCenterDataset("../datasets/centerflowers/originals/",
-    #                                     "../datasets/centerflowers/segmaps/",
-    #                                     transforms.ToTensor(),
-    #                                     transforms.Compose([flowertransforms.ToCenterMask(), transforms.ToTensor()]))
-
     image_transforms = alb.Compose([
         # alb.ToGray()
     ])
 
     shared_transforms = alb.Compose([
-        # alb.Rotate(limit=180)
-        alb.ColorJitter()
+        alb.Rotate(limit=180)
     ], additional_targets={"image": "image", "mask": "mask"})
     train_dataset = FlowerCenterDataset("../datasets/centerflowers/originals/",
                                         "../datasets/centerflowers/segmaps/",
@@ -59,8 +53,7 @@ def segment_flower_parts(image_path):
         in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
         classes=4,  # model output channels (number of classes in your dataset)
     )
-    # general_model_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/models/95.38flower"
-    general_model_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/models/95.35UnetShiftScaleRotate"
+    general_model_path = "./static/models/95.35UnetShiftScaleRotate"
     general_model.load_state_dict(torch.load(general_model_path))
     center_model = smp.DeepLabV3(
         encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
@@ -68,17 +61,14 @@ def segment_flower_parts(image_path):
         in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
         classes=3,  # model output channels (number of classes in your dataset)
     )
-    center_model_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/static/models/96.02centerDeeplabRotate"
-    # center_model_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/FlowerGeneration/models/center/99.13centerManet"
+    center_model_path = "./static/models/96.02centerDeeplabRotate"
     center_model.load_state_dict(torch.load(center_model_path))
     flower_segmap = learning.segment(image_path,
                                      model=general_model,
                                      number_of_classes=4)
-    # cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-results/general_image_.png", flower_segmap)
     center_segmap = learning.segment(image_path,
                                      model=center_model,
                                      number_of_classes=3)
     mask = np.all(center_segmap == np.array([128, 128, 128]), axis=-1)
     center_result = Helpers.apply_boolean_mask(flower_segmap, mask, new_color=np.array([0, 128, 0]))
-    # cv2.imwrite("C:/Users/iwo/Documents/PW/PrInz/FlowerGen/thesis assets/4-results/center_image_.png", center_result)
     return center_result

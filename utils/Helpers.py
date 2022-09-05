@@ -93,7 +93,6 @@ def update_result(result_image, part_image, y, x, max_part_height):
     part_height, part_width = part_image.shape[:2]
     if part_height > max_part_height:
         if part_height > result_image_height:
-            print("Error: petal to large, image too small")
             return y, x, max_part_height
         max_part_height = part_height
     if x + part_width + spacing > result_image_width:
@@ -101,7 +100,6 @@ def update_result(result_image, part_image, y, x, max_part_height):
         y += max_part_height + spacing
         max_part_height = part_height
         if y + part_height + spacing > result_image_height:
-            print("Error: image not large enough")
             return y, x, max_part_height
     result_image[y:y + part_height, x:x + part_width] = part_image
     x += part_width + spacing
@@ -110,7 +108,6 @@ def update_result(result_image, part_image, y, x, max_part_height):
 
 def create_center_segmaps(masks, originals):
     if len(masks) != len(originals):
-        print("Number of masks and originals are different")
         return
     results = []
     for index in range(len(masks)):
@@ -138,13 +135,4 @@ def read_images(folder_path):
         full_path = os.path.join(folder_path, filename)
         images.append(cv2.imread(full_path))
     return images, filenames
-
-
-def save_images(images, filenames):
-    if len(images) != len(filenames):
-        print("Number of images and filenames are different")
-        return
-    save_folder_path = "C:/Users/iwo/Documents/PW/PrInz/FlowerGen/datasets/centerflowers_modified/segmaps"
-    for index in range(len(images)):
-        cv2.imwrite(os.path.join(save_folder_path, filenames[index]), images[index])
 
