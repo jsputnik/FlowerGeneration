@@ -12,3 +12,14 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+body {
+  max-width: 500px;
+  margin: 40px auto auto;
+  background: cornsilk;
+}
+
+img {
+  max-width: 500px;
+  margin: 10px auto;
+}

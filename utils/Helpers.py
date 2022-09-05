@@ -136,3 +136,15 @@ def read_images(folder_path):
         images.append(cv2.imread(full_path))
     return images, filenames
 
+
+def resize_images(folder_path):
+    images = []
+    filenames = os.listdir(folder_path)
+    for filename in filenames:
+        full_path = os.path.join(folder_path, filename)
+        image = cv2.imread(full_path)
+        resize_transform = Transforms.Resize((256, 128))
+        image = resize_transform(image)
+        images.append(image)
+    return images, filenames
+
