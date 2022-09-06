@@ -1,0 +1,15 @@
+Flask
+Werkzeug
+numpy
+torchmetrics
+torchvision
+pillow
+scipy
+scikit-image
+matplotlib
+albumentations
+opencv-python
+segmentation-models-pytorch
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.9.1
+torchvision==0.10.1
