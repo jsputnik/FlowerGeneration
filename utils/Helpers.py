@@ -75,7 +75,7 @@ def separate_flower_parts(image, mask, petal_number):
         pass
     cropped_result_height = y + max_part_height
     if y + max_part_height == 0:
-        cropped_result_height = result_image_height
+        cropped_result_height = 100
     cropped_result = result_image[0:cropped_result_height, 0:result_image_width]
     return cropped_result
 

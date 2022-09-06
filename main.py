@@ -27,6 +27,6 @@ print("Start")
 # seg.train_flower_centers()
 # tests.test_center_segmentation()
 # tests.test_decomposition()
-# images, filenames = Helpers.resize_images("../thesis assets/3-dataset/data")
+# images, filenames = Helpers.resize_images("../thesis assets/5-results/data")
 # for image, filename in zip(images, filenames):
-#     cv2.imwrite("../thesis assets/3-dataset/resized/resized_" + filename, image)
+#     cv2.imwrite("../thesis assets/5-results/resized/resized_" + filename, image)
