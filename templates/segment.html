@@ -7,15 +7,18 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
-<form class="upload_image_div" method="post" enctype="multipart/form-data">
-    <input type="file" name="file">
-    <input type="submit" name="submit_button" value="Upload">
-</form>
+<div class="content">
+    <form class="upload_image_div" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" name="submit_button" value="Upload">
+    </form>
 
-<img src="{{ url_for('display_segment_image', filename=segmented_image) }}">
-<form method="post" enctype="multipart/form-data">
-    <input type="submit" name="submit_button" value="Decompose" onclick="$('.loader').show();">
-</form>
+    <img src="{{ url_for('display_segment_image', filename=segmented_image) }}">
+    <form method="post" enctype="multipart/form-data">
+        <input type="submit" name="submit_button" value="Decompose" onclick="$('.loader').show();$('.content').hide()">
+    </form>
+</div>
+
 <div class="loader"></div>
 </body>
 </html>
