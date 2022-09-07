@@ -15,10 +15,16 @@ class Resize:
     def __call__(self, image):
         height, width = image.shape[:2]
         ratio = height / width
-        if height > self.target_height:
-            height = self.target_height
-            width = int(self.target_height // ratio)
-            image = cv2.resize(image, (width, height))
+        if ratio < self.target_height / self.target_width:  # in case of very wide images
+            if width > self.target_width:
+                width = self.target_width
+                height = int(self.target_width * ratio)
+                image = cv2.resize(image, (width, height))
+        else:
+            if height > self.target_height:
+                height = self.target_height
+                width = int(self.target_height // ratio)
+                image = cv2.resize(image, (width, height))
         result = np.zeros((self.target_height, self.target_width, 3), np.uint8)
         start_x = (self.target_width - width) // 2
         start_y = (self.target_height - height) // 2
@@ -35,14 +41,23 @@ class RestoreOriginalSize:
     def __call__(self, image):
         height, width = image.shape[:2]
         ratio = height / width
-        width = int(self.target_height // ratio)
-        # resize leaving black area on sides
-        image = cv2.resize(image, (width, self.target_height), interpolation=cv2.INTER_NEAREST)
-        left = (width - self.target_width) / 2
-        right = left + self.target_width
-        result = image[0:int(self.target_height), int(left):int(right)]
-
-        return result
+        if ratio > self.target_height / self.target_width:  # if original is wider
+            height = int(self.target_width * ratio)
+            # resize leaving black area on sides
+            image = cv2.resize(image, (self.target_width, height), interpolation=cv2.INTER_NEAREST)
+            up = (height - self.target_height) / 2
+            down = up + self.target_height
+            result = image[int(up):int(down), 0:int(self.target_width)]
+            return result
+        else:
+            # else
+            width = int(self.target_height // ratio)
+            # resize leaving black area on sides
+            image = cv2.resize(image, (width, self.target_height), interpolation=cv2.INTER_NEAREST)
+            left = (width - self.target_width) / 2
+            right = left + self.target_width
+            result = image[0:int(self.target_height), int(left):int(right)]
+            return result
 
 
 class RandomRotate:
