@@ -21,26 +21,28 @@ number_of_classes = 4
 batch_size = 8
 epochs = 20
 learning_rate = 0.05
-model_path = "models/"
 images_per_class = 80
 
+# user specific parameters
 model = smp.Unet(
     encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
     # encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
     in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
     classes=4,  # model output channels (number of classes in your dataset)
 ).to(Device.get_default_device())
+data_path = "../datasets/17flowers/jpg/"
+masks_path = "../datasets/trimaps/"
+save_model_path = "models/"
 
 image_transforms = alb.Compose([
     alb.ColorJitter()
 ])
-
 shared_transforms = alb.Compose([
     alb.Rotate(limit=180)
 ], additional_targets={"image": "image", "mask": "mask"})
-dataset = FlowerDataset("../datasets/17flowers/jpg/",
-                        "../datasets/trimaps/",
-                        None,
+dataset = FlowerDataset(data_path,
+                        masks_path,
+                        image_transforms,
                         None,
                         shared_transforms)
 train_dataset_size = int(train_dataset_ratio * len(dataset))
@@ -59,4 +61,4 @@ validation_dataloader = DataLoader(validation_dataset, batch_size)
 Learning.train(model, epochs, learning_rate, train_dataloader, validation_dataloader)
 avg_accuracy = Learning.evaluate(model, test_dataloader)
 print("Average accuracy: ", avg_accuracy)
-# torch.save(model.state_dict(), model_path + "{:.2f}".format(avg_accuracy) + "UnetRotate")
+torch.save(model.state_dict(), save_model_path + "{:.2f}".format(avg_accuracy) + "UnetRotate")

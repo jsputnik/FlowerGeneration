@@ -28,20 +28,23 @@ epochs = 20
 learning_rate = 0.05
 images_per_class = 80
 
+# user specific parameters
+model_path = "./models/94.88Manet"
 model = smp.MAnet(
     encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
     # encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
     in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-    classes=4,  # model output channels (number of classes in your dataset)
+    classes=number_of_classes,  # model output channels (number of classes in your dataset)
 ).to(Device.get_default_device())
-model_path = "./models/94.88Manet"
+data_path = "../datasets/17flowers/jpg/"
+masks_path = "../datasets/trimaps/"
 
-model.load_state_dict(torch.load(model_path))
-dataset = FlowerDataset("../datasets/17flowers/jpg/",
-                        "../datasets/trimaps/",
+dataset = FlowerDataset(data_path,
+                        masks_path,
                         None,
                         None,
                         None)
+model.load_state_dict(torch.load(model_path))
 train_dataset_size = int(train_dataset_ratio * len(dataset))
 test_dataset_size = int(test_dataset_ratio * len(dataset))
 validation_dataset_size = len(dataset) - train_dataset_size - test_dataset_size

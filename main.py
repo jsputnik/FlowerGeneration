@@ -22,11 +22,3 @@ import segmentation.segmentation as seg
 import tests as tests
 
 print("Start")
-# tests.test_alb_image_modifiers()
-# tests.test_center_image_modifiers()
-# seg.train_flower_centers()
-# tests.test_center_segmentation()
-# tests.test_decomposition()
-# images, filenames = Helpers.resize_images("../thesis assets/5-results/data")
-# for image, filename in zip(images, filenames):
-#     cv2.imwrite("../thesis assets/5-results/resized/resized_" + filename, image)
